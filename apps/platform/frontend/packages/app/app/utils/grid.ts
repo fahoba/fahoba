@@ -92,6 +92,37 @@ export function resized(placement: Placement, dw: number, dh: number, rowLimit =
   }
 }
 
+export interface Trade {
+  /** Where the dragged tile lands: on the other tile's cell. */
+  moved: Placement
+  /** The other tile, moved to where the dragged one came from. */
+  id: number
+  placement: Placement
+}
+
+/**
+ * Dropped onto exactly one other tile, the two trade places: the dragged
+ * tile takes the other's cell, the other the dragged one's origin, each
+ * keeping its size. Null when that does not fit — then nothing moves.
+ */
+export function traded(origin: Placement, drop: Placement, tiles: Tile[], id: number, rowLimit = Infinity): Trade | null {
+  const hit = tiles.filter(tile => tile.id !== id && overlaps(drop, tile))
+
+  if (hit.length !== 1) {
+    return null
+  }
+
+  const other = hit[0]!
+  const moved = { ...drop, x: other.x, y: other.y }
+  const placement = { x: origin.x, y: origin.y, w: other.w, h: other.h }
+  const rest = tiles.filter(tile => tile.id !== id && tile.id !== other.id)
+  const inside = (p: Placement) => p.y + p.h <= rowLimit && fits(p, rest)
+
+  return inside(moved) && inside(placement) && !overlaps(moved, placement)
+    ? { moved, id: other.id, placement }
+    : null
+}
+
 /** How many rows the grid needs so everything fits. */
 export function rows(tiles: Tile[], atLeast = 6): number {
   return Math.max(atLeast, ...tiles.map(tile => tile.y + tile.h))

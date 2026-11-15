@@ -48,6 +48,14 @@ tokens; such a change is named here.
   so two photo tiles can stand side by side at full height. A photo tile
   may choose its layout (one picture, two, mosaic) instead of following
   its size.
+- **Tiles trade places.** A tile let go on another one used to snap
+  back, and rearranging meant parking one tile somewhere free first. Now
+  the two swap when each fits the other's spot — shown before letting go,
+  saved as one change.
+- **Laravel 13.42** — the image build stopped on the advisory against
+  13.38 (task output injection in the concurrency process driver,
+  CVE-2026-128083). Fahoba does not use that driver, but the build fails
+  closed on any advisory, as it should.
 
 - **The family reads “Family Home Base”, written out** — app, admin,
   wordmark, mails, push and the app's name on the home screen. “Fahoba”

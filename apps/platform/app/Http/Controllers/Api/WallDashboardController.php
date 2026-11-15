@@ -23,6 +23,7 @@ use Fahoba\PluginApi\Dashboard\WidgetContext;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -32,7 +33,8 @@ use Throwable;
  * The grid has 12 columns; a tile carries its position in grid cells.
  * Overlaps are not resolved but prevented: where something already sits,
  * nothing can be dropped — a grid that moves tiles around by itself on drop
- * surprises everyone watching.
+ * surprises everyone watching. Two tiles may trade places, but only when
+ * asked (`swap`), as one change: one at a time, each would stand on the other.
  */
 final class WallDashboardController extends Controller
 {
@@ -200,7 +202,15 @@ final class WallDashboardController extends Controller
             'w' => ['required', 'integer', 'min:1', 'max:'.self::COLUMNS],
             'h' => ['required', 'integer', 'min:1', 'max:24'],
             'settings' => ['nullable', 'array'],
+            'swap' => ['nullable', 'array'],
+            'swap.id' => ['required_with:swap', 'integer'],
+            'swap.x' => ['required_with:swap', 'integer', 'min:0'],
+            'swap.y' => ['required_with:swap', 'integer', 'min:0'],
         ]);
+
+        if (isset($data['swap'])) {
+            return $this->swap($owner, $widget, $data);
+        }
 
         $placement = $this->validatedPlacement(
             $owner,
@@ -208,7 +218,7 @@ final class WallDashboardController extends Controller
             (int) $data['y'],
             (int) $data['w'],
             (int) $data['h'],
-            (int) $widget->id,
+            [(int) $widget->id],
         );
 
         $definition = $this->registry->find((string) $widget->type);
@@ -217,6 +227,40 @@ final class WallDashboardController extends Controller
             : $this->settings->validated($definition->settings, $data['settings'], $widget->settings ?? []);
 
         $widget->update([...$placement, 'settings' => $settings]);
+
+        return response()->json(['widget' => $this->shownTile($widget, $definition)]);
+    }
+
+    /**
+     * Two tiles trade places: the moved one lands where it was dropped, the
+     * other keeps its size at the given cell. Checked as the final picture —
+     * each against everything else and against the other.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function swap(Device|User $owner, DashboardWidget $widget, array $data): JsonResponse
+    {
+        $other = DashboardWidget::query()->ownedBy($owner)->whereKey((int) $data['swap']['id'])->first();
+
+        abort_if($other === null || $other->is($widget), 404);
+
+        $except = [(int) $widget->id, (int) $other->id];
+        $moved = $this->validatedPlacement($owner, (int) $data['x'], (int) $data['y'], (int) $data['w'], (int) $data['h'], $except);
+        $traded = $this->validatedPlacement($owner, (int) $data['swap']['x'], (int) $data['swap']['y'], (int) $other->w, (int) $other->h, $except);
+
+        $other->x = $traded['x'];
+        $other->y = $traded['y'];
+
+        if ($other->overlaps($moved['x'], $moved['y'], $moved['w'], $moved['h'])) {
+            throw ValidationException::withMessages(['x' => __('There is already a tile there.')]);
+        }
+
+        DB::transaction(function () use ($widget, $other, $moved): void {
+            $widget->update($moved);
+            $other->save();
+        });
+
+        $definition = $this->registry->find((string) $widget->type);
 
         return response()->json(['widget' => $this->shownTile($widget, $definition)]);
     }
@@ -277,11 +321,12 @@ final class WallDashboardController extends Controller
     }
 
     /**
+     * @param  list<int>  $except  tiles that move in the same change
      * @return array{x: int, y: int, w: int, h: int}
      *
      * @throws ValidationException
      */
-    private function validatedPlacement(Device|User $owner, int $x, int $y, int $w, int $h, ?int $except = null): array
+    private function validatedPlacement(Device|User $owner, int $x, int $y, int $w, int $h, array $except = []): array
     {
         if ($x + $w > self::COLUMNS) {
             throw ValidationException::withMessages(['x' => __('The tile sticks out beyond the grid.')]);
@@ -289,7 +334,7 @@ final class WallDashboardController extends Controller
 
         $occupied = DashboardWidget::query()
             ->ownedBy($owner)
-            ->when($except !== null, fn ($query) => $query->whereKeyNot($except))
+            ->when($except !== [], fn ($query) => $query->whereKeyNot($except))
             ->get()
             ->contains(static fn (DashboardWidget $tile): bool => $tile->overlaps($x, $y, $w, $h));
 

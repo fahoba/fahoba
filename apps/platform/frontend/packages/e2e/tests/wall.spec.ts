@@ -1019,6 +1019,46 @@ test('creates a tile, drags it and removes it again', async ({ page }) => {
 })
 
 /*
+ * Dropped onto another tile, the two trade places — in one request, after
+ * a restart still traded. Weather and clock share a size in the defaults.
+ */
+test('swaps two tiles by dropping one onto the other', async ({ page }) => {
+  await pair(page)
+  await page.getByRole('button', { name: 'Start' }).click()
+  await page.getByTestId('dashboard-edit').click()
+
+  const pin = page.getByRole('dialog', { name: 'Eltern-PIN' })
+
+  for (const rank of [0, 1, 2, 3]) {
+    await pin.getByTestId('pin-key').nth(rank).click()
+  }
+
+  await pin.getByRole('button', { name: 'OK' }).click()
+  await expect(page.getByTestId('dashboard-edit')).toHaveAttribute('aria-pressed', 'true')
+
+  const weather = page.locator('[data-testid="dashboard-tile"][data-type="weather"]')
+  const clock = page.locator('[data-testid="dashboard-tile"][data-type="clock"]')
+  const area = (tile: Locator) => tile.evaluate(el => (el as HTMLElement).style.gridArea)
+  const [weatherBefore, clockBefore] = [await area(weather), await area(clock)]
+
+  const from = (await weather.boundingBox())!
+  const to = (await clock.boundingBox())!
+
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 8 })
+  await expect(clock).toHaveAttribute('data-trading', 'true')
+  await page.mouse.up()
+
+  await expect.poll(() => area(weather)).toBe(clockBefore)
+  await expect.poll(() => area(clock)).toBe(weatherBefore)
+
+  await page.reload()
+  await expect.poll(() => area(weather)).toBe(clockBefore)
+  await expect.poll(() => area(clock)).toBe(weatherBefore)
+})
+
+/*
  * Upright, twelve columns made every tile a sliver: there the grid has six,
  * the landscape tiles set anew in reading order, arranging left to landscape.
  */

@@ -180,6 +180,56 @@ final class WallDashboardTest extends TestCase
         $this->assertDatabaseHas('dashboard_widgets', ['id' => $tile->id, 'x' => 6, 'y' => 4]);
     }
 
+    /** Dropped onto another tile, the two trade places in one change. */
+    public function test_two_tiles_trade_places(): void
+    {
+        $this->unlock();
+        $clock = $this->tile('clock', 0, 0, 3, 2);
+        $weather = $this->tile('weather', 6, 0, 3, 2);
+
+        $this->withToken($this->token)
+            ->patchJson("/api/wall/dashboard/{$clock->id}", ['x' => 6, 'y' => 0, 'w' => 3, 'h' => 2, 'swap' => ['id' => $weather->id, 'x' => 0, 'y' => 0]])
+            ->assertOk();
+
+        $this->assertDatabaseHas('dashboard_widgets', ['id' => $clock->id, 'x' => 6, 'y' => 0]);
+        $this->assertDatabaseHas('dashboard_widgets', ['id' => $weather->id, 'x' => 0, 'y' => 0]);
+    }
+
+    /** A trade that would land on a third tile changes nothing — neither of the two. */
+    public function test_a_trade_onto_a_third_tile_is_refused(): void
+    {
+        $this->unlock();
+        $clock = $this->tile('clock', 0, 0, 3, 2);
+        $calendar = $this->tile('calendar', 6, 0, 6, 6);
+        $this->tile('weather', 3, 0, 3, 2);
+
+        $this->withToken($this->token)
+            ->patchJson("/api/wall/dashboard/{$clock->id}", ['x' => 6, 'y' => 0, 'w' => 3, 'h' => 2, 'swap' => ['id' => $calendar->id, 'x' => 0, 'y' => 0]])
+            ->assertUnprocessable();
+
+        $this->assertDatabaseHas('dashboard_widgets', ['id' => $clock->id, 'x' => 0, 'y' => 0]);
+        $this->assertDatabaseHas('dashboard_widgets', ['id' => $calendar->id, 'x' => 6, 'y' => 0]);
+    }
+
+    /** The other tile has to be one's own, like the moved one. */
+    public function test_no_trade_with_another_tablets_tile(): void
+    {
+        $this->unlock();
+        $clock = $this->tile('clock', 0, 0, 3, 2);
+        $foreign = DashboardWidget::factory()->create([
+            'household_id' => $this->household->id,
+            'device_id' => app(DevicePairingService::class)->redeem(app(DevicePairingService::class)->createCode($this->household, 'Flur')->pairing_code)['device']->id,
+            'type' => 'weather',
+            'x' => 6, 'y' => 0, 'w' => 3, 'h' => 2,
+        ]);
+
+        $this->withToken($this->token)
+            ->patchJson("/api/wall/dashboard/{$clock->id}", ['x' => 6, 'y' => 0, 'w' => 3, 'h' => 2, 'swap' => ['id' => $foreign->id, 'x' => 0, 'y' => 0]])
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('dashboard_widgets', ['id' => $foreign->id, 'x' => 6, 'y' => 0]);
+    }
+
     /** A tile does not overlap with itself. */
     public function test_a_tile_may_grow_in_place(): void
     {

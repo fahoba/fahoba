@@ -109,6 +109,27 @@ export function useDashboard() {
     return outcome
   }
 
+  /** Two tiles trade places in one request: one at a time, each would stand on the other. */
+  async function swap(tile: Tile, placement: Placement, other: number, otherPlacement: Placement): Promise<Outcome> {
+    const outcome = await write(() => $fetch<unknown>(`/api/wall/dashboard/${tile.id}`, {
+      method: 'PATCH',
+      body: { ...placement, swap: { id: other, x: otherPlacement.x, y: otherPlacement.y } },
+      credentials: 'same-origin',
+    }))
+
+    if (outcome === 'ok') {
+      tiles.value = tiles.value.map((entry) => {
+        if (entry.id === tile.id) {
+          return { ...entry, ...placement }
+        }
+
+        return entry.id === other ? { ...entry, x: otherPlacement.x, y: otherPlacement.y } : entry
+      })
+    }
+
+    return outcome
+  }
+
   async function configure(tile: Tile, settings: Record<string, unknown>): Promise<Outcome> {
     const outcome = await write(() => $fetch<unknown>(`/api/wall/dashboard/${tile.id}`, {
       method: 'PATCH',
@@ -186,5 +207,5 @@ export function useDashboard() {
     return outcome
   }
 
-  return { tiles, offer, error, load, place, configure, configurePlugin, add, remove }
+  return { tiles, offer, error, load, place, swap, configure, configurePlugin, add, remove }
 }

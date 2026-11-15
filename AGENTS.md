@@ -763,6 +763,10 @@ app/app/components/widgets/      one component per key
   nothing can be dropped — the tile snaps back. A grid that re-sorts itself on
   drop surprises everyone watching. The check happens
   twice: on the wall before sending, on the server before saving.
+  The one exception is asked for by the drop itself: a tile let go on
+  exactly one other tile that can take its origin trades places with it
+  (`traded()` in `utils/grid.ts`, `PATCH` with `swap: {id, x, y}`). Both
+  move in one transaction — one request each would stand on the other.
 - **Every tablet and every account has its own dashboard**
   (`dashboard_widgets.device_id` or `user_id`, a check constraint allows
   exactly one; `DashboardWidget::ownedBy()`). The first visit places

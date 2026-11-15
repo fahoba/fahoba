@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Tile, Placement } from '~/utils/grid'
+import type { Tile, Placement, Trade } from '~/utils/grid'
 import type { AgendaEvent } from '~/utils/calendar'
 import WidgetCalendar from './widgets/WidgetCalendar.vue'
 import WidgetClock from './widgets/WidgetClock.vue'
@@ -12,7 +12,7 @@ import WidgetRewards from './widgets/WidgetRewards.vue'
 import WidgetStars from './widgets/WidgetStars.vue'
 import WidgetTasks from './widgets/WidgetTasks.vue'
 import WidgetWeather from './widgets/WidgetWeather.vue'
-import { COLUMNS, HALF_COLUMNS, cellOffset, fits, reflowed, resized, shifted, rows, stacked } from '~/utils/grid'
+import { COLUMNS, HALF_COLUMNS, cellOffset, fits, reflowed, resized, shifted, rows, stacked, traded } from '~/utils/grid'
 
 const { t } = useI18n()
 
@@ -24,7 +24,7 @@ const props = defineProps<{ timeZone: string, today: string }>()
  */
 const emit = defineEmits<{ 'pick-event': [AgendaEvent], 'show-tasks': [number] }>()
 
-const { tiles, offer, error, load, place, configure, configurePlugin, add, remove } = useDashboard()
+const { tiles, offer, error, load, place, swap, configure, configurePlugin, add, remove } = useDashboard()
 
 /*
  * Mapped statically instead of resolved by name: that way the type checker
@@ -179,11 +179,21 @@ const drag = ref<{
   startY: number
   origin: Placement
   placement: Placement
+  /** Dropped onto one other tile that can take the origin: the two trade places. */
+  trade: Trade | null
 } | null>(null)
 
 /** The placement shown: the preview while dragging, otherwise the stored one. */
 function placementOf(tile: Tile): Placement {
-  return drag.value?.id === tile.id ? drag.value.placement : tile
+  if (drag.value?.trade?.id === tile.id) {
+    return drag.value.trade.placement
+  }
+
+  if (drag.value?.id === tile.id) {
+    return drag.value.trade?.moved ?? drag.value.placement
+  }
+
+  return tile
 }
 
 /** Taken from the scroll height: a board taller than the screen scrolls. */
@@ -195,7 +205,8 @@ function cellSize(): { width: number, height: number } {
 }
 
 /** The tile under the finger would land on another one. */
-const blocked = computed(() => drag.value !== null && !fits(drag.value.placement, tiles.value, drag.value.id))
+const blocked = computed(() => drag.value !== null && drag.value.trade === null
+  && !fits(drag.value.placement, tiles.value, drag.value.id))
 
 function grab(tile: Tile, art: 'ziehen' | 'groesse', event: PointerEvent): void {
   if (!editMode.value) {
@@ -212,6 +223,7 @@ function grab(tile: Tile, art: 'ziehen' | 'groesse', event: PointerEvent): void 
     startY: event.clientY,
     origin: { x: tile.x, y: tile.y, w: tile.w, h: tile.h },
     placement: { x: tile.x, y: tile.y, w: tile.w, h: tile.h },
+    trade: null,
   }
 }
 
@@ -227,6 +239,11 @@ function move(event: PointerEvent): void {
   drag.value.placement = drag.value.art === 'ziehen'
     ? shifted(drag.value.origin, dx, dy, rowCount.value)
     : resized(drag.value.origin, dx, dy, rowCount.value)
+
+  // Only a moved tile trades; a resized one would push its neighbour away.
+  drag.value.trade = drag.value.art === 'ziehen' && !fits(drag.value.placement, tiles.value, drag.value.id)
+    ? traded(drag.value.origin, drag.value.placement, tiles.value, drag.value.id, rowCount.value)
+    : null
 }
 
 /* A cancelled pointer (the system took the touch) snaps back: `pointercancel` sets `drag` to null. */
@@ -248,8 +265,15 @@ async function release(): Promise<void> {
 
   const tile = tiles.value.find(entry => entry.id === run.id)
 
-  // Nothing is dropped where something already lies: the tile snaps back
-  // instead of pushing another one aside.
+  if (tile && run.trade) {
+    const trade = run.trade
+
+    await mitPin(() => swap(tile, trade.moved, trade.id, trade.placement))
+
+    return
+  }
+
+  // Nothing is pushed aside: what neither fits nor trades snaps back.
   if (!tile || !fits(run.placement, tiles.value, run.id)) {
     error.value = t('dashboard.occupied')
 
@@ -380,12 +404,14 @@ async function removeTile(id: number): Promise<void> {
         :data-type="tile.type"
         class="shrink-0 p-1"
         :class="drag?.id === tile.id ? 'relative z-10' : ''"
+        :data-trading="drag?.trade?.id === tile.id ? true : undefined"
         :style="tileStyle(tile)"
       >
         <section
           class="relative flex h-full min-h-0 flex-col rounded-3xl bg-surface shadow-card transition-shadow"
           :class="[
             tile.type === 'photo' ? '' : 'p-4',
+            drag?.trade?.id === tile.id ? 'ring-4 ring-accent/60' : '',
             editMode ? 'cursor-grab touch-none select-none ring-2 ring-accent/40' : '',
             drag?.id === tile.id ? (blocked ? 'cursor-grabbing opacity-80 shadow-floating ring-4 ring-danger' : 'cursor-grabbing shadow-floating ring-4 ring-accent') : '',
           ]"

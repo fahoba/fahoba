@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Tile } from '../app/utils/grid'
-import { cellOffset, freeCell, fits, overlaps, resized, shifted, rows } from '../app/utils/grid'
+import { cellOffset, freeCell, fits, overlaps, resized, shifted, rows, traded } from '../app/utils/grid'
 
 function tile(id: number, x: number, y: number, w = 3, h = 2): Tile {
   return { id, type: 'clock', x, y, w, h, settings: {} }
@@ -102,5 +102,38 @@ describe('rows', () => {
 
   it('keeps a minimum size so an empty grid does not collapse', () => {
     expect(rows([])).toBe(6)
+  })
+})
+
+describe('traded', () => {
+  const origin = { x: 0, y: 0, w: 3, h: 2 }
+
+  it('swaps two tiles of the same size', () => {
+    const tiles = [tile(1, 0, 0), tile(2, 6, 0)]
+
+    expect(traded(origin, { x: 5, y: 1, w: 3, h: 2 }, tiles, 1)).toEqual({
+      moved: { x: 6, y: 0, w: 3, h: 2 },
+      id: 2,
+      placement: { x: 0, y: 0, w: 3, h: 2 },
+    })
+  })
+
+  it('keeps each size and refuses what does not fit', () => {
+    const tiles = [tile(1, 0, 0), tile(2, 3, 0), tile(3, 6, 0, 6, 6)]
+
+    // The big tile would land on its neighbour at the origin.
+    expect(traded(origin, { x: 6, y: 0, w: 3, h: 2 }, tiles, 1)).toBeNull()
+  })
+
+  it('does not trade with two tiles at once', () => {
+    const tiles = [tile(1, 0, 0), tile(2, 3, 2), tile(3, 6, 2)]
+
+    expect(traded(origin, { x: 5, y: 2, w: 3, h: 2 }, tiles, 1)).toBeNull()
+  })
+
+  it('stays within the board', () => {
+    const tiles = [tile(1, 0, 0, 3, 2), tile(2, 6, 0, 3, 6)]
+
+    expect(traded(origin, { x: 6, y: 0, w: 3, h: 2 }, tiles, 1, 4)).toBeNull()
   })
 })
