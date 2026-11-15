@@ -780,6 +780,17 @@ app/app/components/widgets/      one component per key
   would shift half the dashboard.
 - **No grid gap, but inner padding per tile.** With `gap` the
   computed cell width when dragging did not match the displayed one.
+- **The board's rows are fixed while arranging.** `rows()` of the shown
+  tiles (six at least) share the screen's height (`gridTemplateRows`);
+  `shifted`/`resized` stop at that edge. Dragging once added rows and
+  every tile shrank under the finger, so "full height" was a moving
+  target. Only a new tile placed below (`freeCell`) makes the board taller.
+- **Arranging is touch-first.** In edit mode `tile-grip` covers each
+  tile's content with `touch-none`: a calendar or list scrolls by itself,
+  and a touch on it panned that and sent `pointercancel` instead of
+  moving the tile. A cancelled pointer snaps back, it never saves.
+  A photo tile's `settings.layout` (`single`, `duo`, `mosaic`) overrides
+  the size-derived layout — at full height it was always a mosaic.
 - **The home page is the start area.** After a restart the wall
   is back there, not in the most recently chosen area — a kiosk occasionally
   loses power, and afterwards everything important should be visible without tapping.

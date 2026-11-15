@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { photoIntervalMs, tileStyle } from '~/utils/photoFrame'
+import { photoIntervalMs, photoStyle, tileStyle } from '~/utils/photoFrame'
 
 /*
  * Pictures on the start page, like a photo widget: the layout follows the
- * tile's size — one picture, two side by side, a mosaic — and the tile
+ * tile's size — one picture, two side by side, a mosaic — unless the tile
+ * names one (`settings.layout`), and the tile
  * draws from its own source (`settings.from`, `settings.albums`, or
  * `settings.memories`), so two tiles may show different albums.
  */
@@ -28,7 +29,17 @@ const query = computed(() => ({
   albums: props.settings.from === 'albums' ? albums.value : [],
 }))
 
-const layout = computed(() => props.settings.memories === true ? 'memories' : tileStyle(props.w, props.h))
+const CHOSEN = new Set(['single', 'duo', 'mosaic'])
+
+const layout = computed(() => {
+  if (props.settings.memories === true) {
+    return 'memories'
+  }
+
+  return typeof props.settings.layout === 'string' && CHOSEN.has(props.settings.layout)
+    ? photoStyle(props.settings.layout)
+    : tileStyle(props.w, props.h)
+})
 </script>
 
 <template>

@@ -3,6 +3,9 @@
  * What a photo tile on the start page shows: all pictures, the favourites,
  * chosen albums or the memories. Saved with the tile, not the device — two
  * tiles side by side may show "Oma & Opa" and "Urlaub".
+ *
+ * The layout follows the tile's size unless chosen: a tile at full height
+ * would otherwise always be a mosaic, never the one picture asked for.
  */
 interface Props {
   settings: Record<string, unknown>
@@ -23,6 +26,12 @@ interface AlbumDto { id: number, name: string }
 
 const albums = ref<AlbumDto[]>([])
 const choice = ref<string>(props.settings.memories === true ? 'memories' : typeof props.settings.from === 'string' ? props.settings.from : 'all')
+const LAYOUTS = ['single', 'duo', 'mosaic'] as const
+const layout = ref<string>(LAYOUTS.includes(props.settings.layout as typeof LAYOUTS[number]) ? String(props.settings.layout) : 'auto')
+const LAYOUT_OPTIONS = computed(() => [
+  { value: 'auto', label: t('theme.auto') },
+  ...LAYOUTS.map(value => ({ value, label: t(`photos.styles.${value}`) })),
+])
 const chosen = ref<number[]>(Array.isArray(props.settings.albums) ? props.settings.albums.filter((id): id is number => typeof id === 'number') : [])
 
 onMounted(async () => {
@@ -48,7 +57,11 @@ function toggle(id: number): void {
 function save(): void {
   emit('save', choice.value === 'memories'
     ? { memories: true }
-    : { from: choice.value, albums: choice.value === 'albums' ? chosen.value : [] })
+    : {
+        from: choice.value,
+        albums: choice.value === 'albums' ? chosen.value : [],
+        ...(layout.value === 'auto' ? {} : { layout: layout.value }),
+      })
 }
 </script>
 
@@ -90,6 +103,19 @@ function save(): void {
           {{ album.name }}
         </button>
       </div>
+
+      <template v-if="choice !== 'memories'">
+        <h3 id="photo-tile-layout" class="mt-6 text-base font-semibold text-ink-2">
+          {{ $t('photos.settings.layout') }}
+        </h3>
+        <ChoiceChips
+          v-model="layout"
+          class="mt-2"
+          :options="LAYOUT_OPTIONS"
+          labelled-by="photo-tile-layout"
+          test-id="photo-tile-layout"
+        />
+      </template>
 
       <div class="mt-6 flex justify-end gap-2">
         <button type="button" class="min-h-11 rounded-xl px-4 text-base font-semibold text-ink-2" @click="emit('close')">

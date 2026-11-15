@@ -66,21 +66,29 @@ export function cellOffset(pixel: number, cellWidth: number): number {
   return cellWidth <= 0 ? 0 : Math.round(pixel / cellWidth)
 }
 
-/** The placement after a drag, kept within the grid. */
-export function shifted(placement: Placement, dx: number, dy: number): Placement {
+/**
+ * The placement after a drag, kept within the grid.
+ *
+ * `rowLimit` is the board's height: dragging past the bottom edge added a
+ * row, and every row on screen shrank with it.
+ */
+export function shifted(placement: Placement, dx: number, dy: number, rowLimit = Infinity): Placement {
   return {
     ...placement,
     x: clamp(placement.x + dx, 0, COLUMNS - placement.w),
-    y: Math.max(0, placement.y + dy),
+    y: clamp(placement.y + dy, 0, Math.max(0, rowLimit - placement.h)),
   }
 }
 
-/** The placement after dragging the handle; at least one cell in size. */
-export function resized(placement: Placement, dw: number, dh: number): Placement {
+/**
+ * The placement after dragging the handle; at least one cell in size and
+ * no further than the board's edges, so "full height" is where it stops.
+ */
+export function resized(placement: Placement, dw: number, dh: number, rowLimit = Infinity): Placement {
   return {
     ...placement,
     w: clamp(placement.w + dw, 1, COLUMNS - placement.x),
-    h: Math.max(1, placement.h + dh),
+    h: clamp(placement.h + dh, 1, Math.max(1, rowLimit - placement.y)),
   }
 }
 

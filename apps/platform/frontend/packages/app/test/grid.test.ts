@@ -74,6 +74,10 @@ describe('shifted', () => {
     expect(shifted({ x: 10, y: 0, w: 3, h: 2 }, 5, 0).x).toBe(9)
     expect(shifted({ x: 0, y: 0, w: 3, h: 2 }, -5, -5)).toEqual({ x: 0, y: 0, w: 3, h: 2 })
   })
+
+  it('stops at the bottom edge of the board', () => {
+    expect(shifted({ x: 0, y: 2, w: 3, h: 2 }, 0, 9, 6).y).toBe(4)
+  })
 })
 
 describe('resized', () => {
@@ -83,6 +87,11 @@ describe('resized', () => {
 
   it('does not let it grow over the right edge', () => {
     expect(resized({ x: 9, y: 0, w: 3, h: 2 }, 4, 0).w).toBe(3)
+  })
+
+  it('stops at full height instead of adding rows', () => {
+    expect(resized({ x: 0, y: 0, w: 6, h: 2 }, 0, 9, 6).h).toBe(6)
+    expect(resized({ x: 0, y: 4, w: 6, h: 2 }, 0, 9, 6).h).toBe(2)
   })
 })
 

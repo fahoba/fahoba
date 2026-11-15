@@ -164,7 +164,12 @@ async function afterUnlock(): Promise<void> {
 
 const raster = ref<HTMLElement | null>(null)
 
-const rowCount = computed(() => rows(tiles.value))
+/*
+ * The board is as many rows as its tiles need, six at least, and those rows
+ * share the screen's height. Dragging never adds a row: when it did, every
+ * tile shrank under the finger and "full height" was a moving target.
+ */
+const rowCount = computed(() => rows(shown.value))
 
 /** The drag currently in progress. Null means nobody is dragging. */
 const drag = ref<{
@@ -181,14 +186,16 @@ function placementOf(tile: Tile): Placement {
   return drag.value?.id === tile.id ? drag.value.placement : tile
 }
 
+/** Taken from the scroll height: a board taller than the screen scrolls. */
 function cellSize(): { width: number, height: number } {
-  const rect = raster.value?.getBoundingClientRect()
-
   return {
-    width: (rect?.width ?? 0) / COLUMNS,
-    height: (rect?.height ?? 0) / rowCount.value,
+    width: (raster.value?.clientWidth ?? 0) / COLUMNS,
+    height: (raster.value?.scrollHeight ?? 0) / rowCount.value,
   }
 }
+
+/** The tile under the finger would land on another one. */
+const blocked = computed(() => drag.value !== null && !fits(drag.value.placement, tiles.value, drag.value.id))
 
 function grab(tile: Tile, art: 'ziehen' | 'groesse', event: PointerEvent): void {
   if (!editMode.value) {
@@ -196,6 +203,7 @@ function grab(tile: Tile, art: 'ziehen' | 'groesse', event: PointerEvent): void 
   }
 
   ;(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId)
+  error.value = null
 
   drag.value = {
     id: tile.id,
@@ -217,10 +225,11 @@ function move(event: PointerEvent): void {
   const dy = cellOffset(event.clientY - drag.value.startY, height)
 
   drag.value.placement = drag.value.art === 'ziehen'
-    ? shifted(drag.value.origin, dx, dy)
-    : resized(drag.value.origin, dx, dy)
+    ? shifted(drag.value.origin, dx, dy, rowCount.value)
+    : resized(drag.value.origin, dx, dy, rowCount.value)
 }
 
+/* A cancelled pointer (the system took the touch) snaps back: `pointercancel` sets `drag` to null. */
 async function release(): Promise<void> {
   const run = drag.value
 
@@ -360,6 +369,7 @@ async function removeTile(id: number): Promise<void> {
       :class="narrow ? 'flex min-h-0 flex-1 flex-col overflow-y-auto' : 'grid min-h-0 flex-1 overflow-y-auto'"
       :style="narrow ? {} : {
         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rowCount}, minmax(${STACKED_ROW}px, 1fr))`,
         gridAutoRows: `minmax(${STACKED_ROW}px, 1fr)`,
       }"
     >
@@ -369,24 +379,28 @@ async function removeTile(id: number): Promise<void> {
         data-testid="dashboard-tile"
         :data-type="tile.type"
         class="shrink-0 p-1"
+        :class="drag?.id === tile.id ? 'relative z-10' : ''"
         :style="tileStyle(tile)"
       >
         <section
-          class="relative flex h-full min-h-0 flex-col rounded-3xl bg-surface p-4 shadow-card transition-shadow"
+          class="relative flex h-full min-h-0 flex-col rounded-3xl bg-surface shadow-card transition-shadow"
           :class="[
-            editMode ? 'cursor-grab ring-2 ring-accent/40' : '',
-            drag?.id === tile.id ? 'shadow-floating' : '',
+            tile.type === 'photo' ? '' : 'p-4',
+            editMode ? 'cursor-grab touch-none select-none ring-2 ring-accent/40' : '',
+            drag?.id === tile.id ? (blocked ? 'cursor-grabbing opacity-80 shadow-floating ring-4 ring-danger' : 'cursor-grabbing shadow-floating ring-4 ring-accent') : '',
           ]"
+          :data-blocked="drag?.id === tile.id ? blocked : undefined"
           @pointerdown="grab(tile, 'ziehen', $event)"
           @pointermove="move"
           @pointerup="release"
-          @pointercancel="release"
+          @pointercancel="drag = null"
         >
-          <h3 class="mb-2 shrink-0 truncate text-sm font-bold text-ink-3">
+          <!-- A photo runs edge to edge; its title would only cover the picture. -->
+          <h3 v-if="tile.type !== 'photo'" class="mb-2 shrink-0 truncate text-sm font-bold text-ink-3">
             {{ label.get(tile.type) ?? tile.type }}
           </h3>
 
-          <div class="min-h-0 flex-1 overflow-hidden">
+          <div class="min-h-0 flex-1 overflow-hidden" :class="tile.type === 'photo' ? 'rounded-3xl' : ''">
             <component
               :is="component(tile.type)"
               v-if="component(tile.type)"
@@ -400,6 +414,13 @@ async function removeTile(id: number): Promise<void> {
           </div>
 
           <template v-if="editMode">
+            <!--
+              Covers the content while arranging: a calendar or list scrolls
+              by itself, and a touch there panned it and cancelled the drag
+              instead of moving the tile.
+            -->
+            <div data-testid="tile-grip" class="absolute inset-0 touch-none rounded-3xl" />
+
             <button
               type="button"
               data-testid="tile-remove"
@@ -445,14 +466,17 @@ async function removeTile(id: number): Promise<void> {
               {{ tile.settings.view === 'list' ? $t('dashboard.asGrid') : $t('dashboard.asList') }}
             </button>
 
+            <!-- Big enough for a finger, not only a mouse pointer. -->
             <span
               data-testid="tile-handle"
-              class="absolute right-1 bottom-1 size-7 cursor-se-resize rounded-tl-xl bg-accent/30"
+              class="absolute -right-1 -bottom-1 flex size-12 cursor-se-resize touch-none items-center justify-center rounded-full bg-accent text-accent-ink shadow-card"
               @pointerdown.stop="grab(tile, 'groesse', $event)"
               @pointermove="move"
               @pointerup="release"
-              @pointercancel="release"
-            />
+              @pointercancel="drag = null"
+            >
+              <TwIcon name="resize" :size="20" />
+            </span>
           </template>
         </section>
       </div>

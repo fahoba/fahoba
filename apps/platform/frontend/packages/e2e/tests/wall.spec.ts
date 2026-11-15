@@ -966,37 +966,40 @@ test('creates a tile, drags it and removes it again', async ({ page }) => {
   await expect(tile).toHaveCount(1)
 
   /*
-   * Dragged below all other tiles: it is certainly free there, and a tile
+   * The new tile lands below the default layout, alone in its rows: dragged
+   * sideways to the right edge it is certainly free there, and a tile
    * dragged onto an occupied area deliberately snaps back.
    */
-  const placements = await page.getByTestId('dashboard-tile').evaluateAll(node => node.map((el) => {
-    const style = (el as HTMLElement).style
+  const column = await tile.evaluate(el => (el as HTMLElement).style.gridColumn)
+  const [x, w] = column.split('/ span').map(part => Number.parseInt(part.trim(), 10)) as [number, number]
+  const columnWidth = await raster.evaluate(el => el.clientWidth / 12)
 
-    return {
-      y: Number.parseInt(style.gridRow.split('/')[0]!.trim(), 10),
-      h: Number.parseInt(style.gridRow.split('span')[1]!.trim(), 10),
-    }
-  }))
+  const box = await tile.boundingBox()
+  const startX = box!.x + box!.width / 2
+  const startY = box!.y + box!.height / 2
 
-  const bottom = Math.max(...placements.map(placement => placement.y + placement.h))
-  const own = await tile.evaluate(el => Number.parseInt((el as HTMLElement).style.gridRow.split('/')[0]!.trim(), 10))
-
-  const gridCell = await raster.boundingBox()
-  const rowCount = Math.max(6, bottom - 1)
-  const rowHeight = gridCell!.height / rowCount
-
-  const handle = await tile.boundingBox()
-  const target = (bottom - own) * rowHeight
-
-  await page.mouse.move(handle!.x + handle!.width / 2, handle!.y + 20)
+  await page.mouse.move(startX, startY)
   await page.mouse.down()
-  await page.mouse.move(handle!.x + handle!.width / 2, handle!.y + 20 + target, { steps: 8 })
+  await page.mouse.move(startX + (13 - w - x) * columnWidth, startY, { steps: 8 })
   await page.mouse.up()
 
-  // Below all others: one row lower than the lowest edge so far.
-  const dragged = `${bottom} / span 2`
+  const dragged = `${13 - w} / span ${w}`
 
-  await expect.poll(async () => tile.evaluate(el => (el as HTMLElement).style.gridRow)).toBe(dragged)
+  await expect.poll(async () => tile.evaluate(el => (el as HTMLElement).style.gridColumn)).toBe(dragged)
+
+  /*
+   * Dragging past the bottom never adds a row: the handle stops at the
+   * board's lower edge, so "full height" is a place a tile can reach.
+   */
+  const rowsBefore = await raster.evaluate(el => getComputedStyle(el).gridTemplateRows.split(' ').length)
+  const handle = await tile.getByTestId('tile-handle').boundingBox()
+
+  await page.mouse.move(handle!.x + handle!.width / 2, handle!.y + handle!.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(handle!.x + handle!.width / 2, handle!.y + 600, { steps: 8 })
+  await page.mouse.up()
+
+  expect(await raster.evaluate(el => getComputedStyle(el).gridTemplateRows.split(' ').length)).toBe(rowsBefore)
 
   /*
    * The drag has to survive the restart — otherwise it only lived in the
@@ -1006,7 +1009,7 @@ test('creates a tile, drags it and removes it again', async ({ page }) => {
   await page.reload()
 
   await expect(tile).toHaveCount(1)
-  await expect.poll(async () => tile.evaluate(el => (el as HTMLElement).style.gridRow)).toBe(dragged)
+  await expect.poll(async () => tile.evaluate(el => (el as HTMLElement).style.gridColumn)).toBe(dragged)
 
   // Leave things tidy: the run works on the development database.
   await page.getByTestId('dashboard-edit').click()

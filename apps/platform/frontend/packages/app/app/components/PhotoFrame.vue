@@ -341,7 +341,7 @@ const empty = computed(() => loaded.value && batch.value.length === 0)
 </script>
 
 <template>
-  <p v-if="empty && props.compact" class="text-base text-ink-3">
+  <p v-if="empty && props.compact" class="p-4 text-base text-ink-3">
     {{ $t('photos.none') }}
   </p>
 

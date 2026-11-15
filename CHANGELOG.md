@@ -9,6 +9,17 @@ tokens; such a change is named here.
 
 ### Changed
 
+- **Arranging the start page works by touch.** On the tablet a drag
+  usually ended at once: the browser took the touch as scrolling — the
+  grid's or a tile's own list — and cancelled the pointer, and the tile
+  stayed where it was. While arranging, a cover over each tile now keeps
+  the touch for dragging, the resize handle is finger-sized, and a tile
+  over another one shows red before it is let go. The board no longer
+  grows rows while dragging: the lowest row is the screen's bottom edge,
+  so two photo tiles can stand side by side at full height. A photo tile
+  may choose its layout (one picture, two, mosaic) instead of following
+  its size.
+
 - **The family reads “Family Home Base”, written out** — app, admin,
   wordmark, mails, push and the app's name on the home screen. “Fahoba”
   stays the short form for code, repositories and packages: an acronym
