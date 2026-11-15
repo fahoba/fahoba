@@ -1142,6 +1142,15 @@ PluginRoutes::api('acme/board', fn () => require __DIR__.'/../routes/api.php'); 
   `task.completed`, …) — a contract other services rely on: add, never
   rename. `created` and `updated` are listened to separately, because
   `wasRecentlyCreated` stays true on the instance for every later save.
+- **Plugins send messages through `Messenger`, only when allowed**
+  (`offer('messages', key, MessageSender)`, core `PluginMessenger`,
+  notification `PluginMessage`). `households.message_senders` stores the
+  keys parents ticked (Household → Messages from plugins); null allows
+  none — the permission is stored, not the exception, like the
+  interfaces. A ticked key no installed package offers sends nothing.
+  Recipients: `Parents` (`household.manage`) or `Family` (every accepted
+  membership). At most `Messenger::PER_HOUR` per sender and household
+  (`RateLimiter`); the push tag is `plugin-<vendor>-<name>[-tag]`.
 - **`OutboundHttp::send()`** for any method, without redirects; null
   means refused address or failure. Household addresses only.
 
@@ -1157,6 +1166,8 @@ None is installed in the image; `FAHOBA_PLUGINS` picks them.
 | `fahoba/webhooks` | signed POSTs on chosen `DomainEvent`s | `OutboundHttp::send`, `X-Fahoba-Signature: sha256=…`, 3 tries; the job catches everything (see outage rule), sync queue = last try. 50 deliveries kept per hook. |
 | `fahoba/mcp` | `/mcp` for AI assistants (laravel/mcp) | API tokens only (`RequireApiToken`). Tools call the app's own API (`Fahoba\Mcp\Api`, kernel sub-request with the caller's token): permissions, PIN rules, areas and validation stay in one place. |
 | `fahoba/caldav` | calendar provider, both ways | Nextcloud, iCloud, mailbox.org … via `OutboundHttp` (no home-network servers). |
+| `fahoba/ics-calendar` | read-only calendar from a published iCal address | one connection per address; whole file, cursor = sha1 without `DTSTAMP` lines (servers stamp every answer); series via sabre/vobject like CalDAV; webcal:// → https://. No `WritesEvents`: local edits are overwritten on the next change there. |
+| `fahoba/waste` | dashboard tile: next waste collections from an iCal file | file cached 6 h per address (the tile's own cache asks every minute); colour dot by keyword in the title; tomorrow reads “put it out tonight”. Reminder the evening before (`remind`, `remind_at` tile settings, `fahoba:waste-reminders` every 15 min): reads tiles through `PlacedTiles`, one message per household, address and kinds a day (cache `fahoba-waste:reminded:*`, set only after it was allowed and the file read); widest audience and earliest time of the same calendar win. |
 | `fahoba/webdav-backup` | extension: nightly dump + uploads to WebDAV | operator's address, so plain `Http` — a NAS at home is allowed. |
 | `fahoba/example-area` | dev only, the reference for a plugin area and a tile | menu entry “Beispiel”, tile “Zähler” (settings, buttons, a guarded reset), e2e `plugins.spec.ts`. |
 | `fahoba/example-theme` | dev only, the reference for a design pack | “Fjord”: cool colours, rounder corners, its own glass gradient. |

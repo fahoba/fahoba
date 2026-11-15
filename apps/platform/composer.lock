@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f32569c310aa1e461fe9707999c773d",
+    "content-hash": "16482adbe6a70f78ffc7fade6bdfadde",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -10278,6 +10278,39 @@
             }
         },
         {
+            "name": "fahoba/ics-calendar",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "plugins/ics-calendar",
+                "reference": "431f33aadb6a8514ad13777d98a972a1e8150508"
+            },
+            "require": {
+                "fahoba/plugin-api": "^0.1",
+                "php": "^8.5",
+                "sabre/vobject": "^4.6"
+            },
+            "type": "library",
+            "extra": {
+                "fahoba": {
+                    "provider": "Fahoba\\IcsCalendar\\IcsCalendarPlugin"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Fahoba\\IcsCalendar\\": "src/"
+                }
+            },
+            "license": [
+                "PolyForm-Shield-1.0.0"
+            ],
+            "description": "Calendar subscriptions: any published iCal address — school, club, Outlook, iCloud or Google — shown read-only",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "fahoba/ics-feed",
             "version": "0.1.0",
             "dist": {
@@ -10468,6 +10501,39 @@
                 "PolyForm-Shield-1.0.0"
             ],
             "description": "Two-factor sign-in for Fahoba: authenticator app and recovery codes, switched on by the operator",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "fahoba/waste",
+            "version": "0.1.0",
+            "dist": {
+                "type": "path",
+                "url": "plugins/waste",
+                "reference": "ad4fdbc07af1ecbf60e59f9a9a62524ec8c5690f"
+            },
+            "require": {
+                "fahoba/plugin-api": "^0.1",
+                "php": "^8.5",
+                "sabre/vobject": "^4.6"
+            },
+            "type": "library",
+            "extra": {
+                "fahoba": {
+                    "provider": "Fahoba\\Waste\\WastePlugin"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Fahoba\\Waste\\": "src/"
+                }
+            },
+            "license": [
+                "PolyForm-Shield-1.0.0"
+            ],
+            "description": "A dashboard tile with the next waste collections, from the municipality's iCal calendar",
             "transport-options": {
                 "symlink": true,
                 "relative": true

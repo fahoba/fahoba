@@ -54,7 +54,7 @@ final class HouseholdImport
      */
     public const ID_FREE = [
         'dashboard_widgets.settings', 'devices.permissions', 'people.permissions', 'memberships.dismissed_notices',
-        'households.disabled_features', 'households.meal_kinds', 'households.opted_in_features', 'households.pantry_staples',
+        'households.disabled_features', 'households.meal_kinds', 'households.message_senders', 'households.opted_in_features', 'households.pantry_staples',
         'provider_accounts.settings', 'recipes.categories', 'recipes.ingredients', 'recipes.license', 'recipes.pages',
         'tasks.dayparts', 'webhooks.events',
     ];

@@ -355,8 +355,7 @@
     "decline": "Ablehnen",
     "approve": "Freigeben",
     "rewards": "Belohnungen",
-    "redeemHint": "Zum Einlösen oben den eigenen Namen antippen.",
-    "redeemConfirm": "Nochmal tippen: für {name} einlösen",
+    "redeemHint": "Zum Einlösen eine Belohnung antippen.",
     "noRewards": "Noch keine Belohnungen angelegt.",
     "recent": "Letzte Buchungen",
     "older": "Ältere Buchungen",
@@ -407,6 +406,22 @@
       "note": "Notiz (freiwillig)",
       "notePlaceholder": "Damit es fürs Kino reicht",
       "save": "Schenken"
+    },
+    "redeem": {
+      "title": "„{reward}“ einlösen",
+      "costs": "Kostet",
+      "forWhom": "Für wen?",
+      "has": "{name} hat",
+      "left": "Bleiben übrig",
+      "confirm": "Einlösen",
+      "ask": "Anfragen",
+      "done": "Eingelöst!",
+      "asked": "Angefragt!",
+      "doneText": "{name} hat „{reward}“ eingelöst – {n} Stern abgezogen. | {name} hat „{reward}“ eingelöst – {n} Sterne abgezogen.",
+      "askedText": "{name} möchte „{reward}“ für {n} Stern. Die Eltern entscheiden. | {name} möchte „{reward}“ für {n} Sterne. Die Eltern entscheiden.",
+      "leftNow": "{name} hat jetzt noch",
+      "leftAfter": "Danach bleiben {name}",
+      "ok": "Fertig"
     }
   },
   "calendars": {

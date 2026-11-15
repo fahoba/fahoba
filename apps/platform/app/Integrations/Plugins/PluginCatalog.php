@@ -9,6 +9,7 @@ use Fahoba\PluginApi\Areas\Area;
 use Fahoba\PluginApi\Dashboard\DataWidget;
 use Fahoba\PluginApi\Households\HouseholdNotice;
 use Fahoba\PluginApi\Languages\LanguagePack;
+use Fahoba\PluginApi\Messages\MessageSender;
 use Fahoba\PluginApi\Photos\PhotoRule;
 use Fahoba\PluginApi\Plugins\Catalog;
 use Fahoba\PluginApi\Plugins\ConfiguresPanel;
@@ -48,6 +49,7 @@ final class PluginCatalog
         'panel' => ConfiguresPanel::class,
         'languages' => LanguagePack::class,
         'notices' => HouseholdNotice::class,
+        'messages' => MessageSender::class,
         'themes' => Theme::class,
     ];
 

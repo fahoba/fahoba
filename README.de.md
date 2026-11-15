@@ -270,6 +270,7 @@ Elternteil es unter Haushalt → Schnittstellen einschaltet. Die von Fahoba:
 | Paket | Was es tut | Wo es eingerichtet wird |
 |---|---|---|
 | `fahoba/caldav` | Kalender aus Nextcloud, iCloud, mailbox.org oder jedem CalDAV-Server, in beide Richtungen | Verbindungen → CalDAV |
+| `fahoba/ics-calendar` | Zeigt jede veröffentlichte iCal-Adresse nur lesend – Schule, Verein, Müllabfuhr, Outlook, iCloud, Google | Verbindungen → iCal-Kalender (Link) |
 | `fahoba/ics-feed` | Eine geheime Kalenderadresse je Familie oder Person für andere Kalender-Apps | Integrationen → Kalender-Abos |
 | `fahoba/webhooks` | Signierte POSTs bei gewählten Ereignissen, etwa an Home Assistant | Integrationen → Webhooks |
 | `fahoba/mcp` | `/mcp` für KI-Assistenten (Model Context Protocol) | ein API-Token, siehe unten |
@@ -279,6 +280,7 @@ Elternteil es unter Haushalt → Schnittstellen einschaltet. Die von Fahoba:
 | `fahoba/kochwiki` | Rezepte aus dem Koch-Wiki, einmal je Server gespiegelt | Verbindungen → Koch-Wiki |
 | `fahoba/two-factor` | Authenticator-App als zweiter Faktor | Betrieb → Erweiterungen |
 | `fahoba/social-login` | Anmelden mit Google (und anderen Socialite-Anbietern) | Betrieb → Erweiterungen |
+| `fahoba/waste` | Eine Dashboard-Kachel mit den nächsten Tonnen aus dem iCal-Abfallkalender der Gemeinde; morgen heißt „heute Abend rausstellen“; auf Wunsch eine Erinnerung am Vorabend an die Eltern oder die ganze Familie | Einstellungen der Kachel; für die Erinnerung zusätzlich Haushalt → Nachrichten von Plugins |
 
 **API-Tokens** (Integrationen → API-Zugang) lassen Skripte und Assistenten
 herein: nur lesend oder mit Schreiben, für einen Haushalt, nie mehr, als das

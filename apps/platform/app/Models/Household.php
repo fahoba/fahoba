@@ -9,6 +9,7 @@ use App\Enums\Backdrop;
 use App\Enums\Feature;
 use App\Enums\MealKind;
 use App\Enums\ThemeMode;
+use App\Integrations\Plugins\PluginCatalog;
 use App\Services\Calendar\BuiltinCalendar;
 use App\Services\HouseholdNotices;
 use App\Services\ParentPin;
@@ -30,6 +31,7 @@ final class Household extends Model
         'theme_mode', 'theme_light_at', 'theme_dark_at', 'backdrop', 'design',
         'latitude', 'longitude', 'sunrise_offset', 'sunset_offset',
         'summary_at', 'disabled_features', 'opted_in_features', 'photo_rule', 'locale', 'day_bonus', 'pantry_staples', 'meal_kinds',
+        'message_senders',
     ];
 
     /** @return array<string, string> */
@@ -47,6 +49,7 @@ final class Household extends Model
             'opted_in_features' => 'array',
             'pantry_staples' => 'array',
             'meal_kinds' => 'array',
+            'message_senders' => 'array',
             'suspended_at' => 'datetime',
             'read_only_since' => 'datetime',
             'day_bonus' => 'integer',
@@ -77,6 +80,16 @@ final class Household extends Model
     public function isReadOnly(): bool
     {
         return $this->read_only_since !== null;
+    }
+
+    /**
+     * Whether parents let this plugin send messages. A key no installed
+     * package offers sends nothing, even if it was once ticked.
+     */
+    public function allowsMessagesFrom(string $sender): bool
+    {
+        return in_array($sender, (array) ($this->message_senders ?? []), true)
+            && array_key_exists($sender, app(PluginCatalog::class)->offered('messages'));
     }
 
     /**

@@ -266,6 +266,7 @@ Household → Interfaces. Fahoba's own:
 | Package | What it does | Where it is set up |
 |---|---|---|
 | `fahoba/caldav` | Calendars from Nextcloud, iCloud, mailbox.org or any CalDAV server, both ways | Connections → CalDAV |
+| `fahoba/ics-calendar` | Shows any published iCal address read-only — school, club, waste collection, Outlook, iCloud, Google | Connections → iCal calendar (link) |
 | `fahoba/ics-feed` | A secret calendar address per family or person for other calendar apps | Integrations → Calendar subscriptions |
 | `fahoba/webhooks` | Signed POSTs on chosen events, e.g. to Home Assistant | Integrations → Webhooks |
 | `fahoba/mcp` | `/mcp` for AI assistants (Model Context Protocol) | an API token, see below |
@@ -275,6 +276,7 @@ Household → Interfaces. Fahoba's own:
 | `fahoba/kochwiki` | Recipes from Koch-Wiki, mirrored once per server | Connections → Koch-Wiki |
 | `fahoba/two-factor` | Authenticator app as a second factor | Operations → Extensions |
 | `fahoba/social-login` | Sign in with Google (and other Socialite providers) | Operations → Extensions |
+| `fahoba/waste` | A dashboard tile with the next bins from the municipality's iCal calendar; tomorrow says “put it out tonight”; optionally a reminder to the parents or the whole family the evening before | the tile's settings; the reminder also needs Household → Messages from plugins |
 
 **API tokens** (Integrations → API access) let scripts and assistants in:
 read-only or with writing, for one household, never more than the account

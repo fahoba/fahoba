@@ -994,5 +994,7 @@
     "Weekdays": "Wochentage",
     "Week :number": "KW :number",
     "Who does which task": "Wer macht welche Aufgabe",
-    "Without a name": "Ohne Namen"
+    "Without a name": "Ohne Namen",
+    "Messages from plugins": "Nachrichten von Plugins",
+    "Off until switched on. A ticked plugin may send messages to the bell and the phones of this household.": "Aus, bis eingeschaltet. Ein angehaktes Plugin darf Nachrichten an die Glocke und die Handys dieses Haushalts schicken."
 }

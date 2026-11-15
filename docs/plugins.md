@@ -112,6 +112,7 @@ until the next deploy.
 | `languages` | `Languages\LanguagePack` | a language beyond German and English |
 | `themes` | `Themes\Theme` | a design: colours, font and corners for wall and phone |
 | `notices` | `Households\HouseholdNotice` | a sentence for one household on wall, phone and admin; `key` lets an account close it, `NoticeAudience` names who sees it (household, managers, operator) |
+| `messages` | `Messages\MessageSender` | a plugin that sends messages to a family's bell and phones — only once the parents allowed it, see below |
 
 **Secrets on a move.** An `ExportRules` class may also implement
 `Plugins\MovesSecrets`: encrypted columns that still work on another server
@@ -347,6 +348,42 @@ src/AcmeVioletTheme.php     name() and stylesheet()
   checks.
 - `fahoba/example-theme` (development only) is “Fjord”.
 
+## Messages
+
+A plugin may tell a family something — the bin tomorrow, a parcel at the
+door. Offering it is not permission: parents tick each sender under
+Household → Messages from plugins, and until then nothing arrives.
+
+```php
+$catalog->offer('messages', 'acme/waste', WasteReminder::class); // label(), description()
+
+// later, anywhere — a scheduled command, a sync, a webhook (inject Messenger)
+$messenger->send('acme/waste', $householdId, new Message(
+    title: 'Biotonne morgen',
+    body: 'Heute Abend rausstellen',
+    link: '/?area=dashboard',          // https:// or a path here
+    audience: MessageAudience::Parents, // or Family: children's phones too
+    tag: 'bio',                          // a new push with the tag replaces the last
+));
+```
+
+- **`label()` and `description()` are what parents read before ticking** —
+  say what arrives and how often.
+- **`send()` returns false** when the sender is not offered or not allowed,
+  the household is suspended, nobody is there to receive it, or the sender
+  reached `Messenger::PER_HOUR` messages for that household. Ask
+  `allowed()` first when building the message costs something.
+- **Acting on tiles in the background:** `Dashboard\PlacedTiles::of($type)`
+  lists every placed tile of a type with its household, zone, language and
+  settings (secrets decrypted, suspended households left out) — what a
+  scheduled command needs to remind each family at its own time.
+  `fahoba/waste` is the example.
+- **Write it in the household's language** (`CurrentHousehold::locale()`);
+  it is stored as written. Title and body are cut at 120 and 500
+  characters.
+- Every message lands in the bell (app and admin); `push: false` keeps it
+  off the phones.
+
 ## HTTP, caching, translations
 
 - **`Http\Outbound`** (inject it): `server()` for an API with a fixed host
@@ -443,6 +480,7 @@ FAHOBA_PLUGINS="fahoba/caldav fahoba/two-factor acme/waste:^1.2"
 |---|---|
 | `fahoba/bring` | Bring! shopping lists, both ways |
 | `fahoba/caldav` | CalDAV calendars (Nextcloud, iCloud, mailbox.org …) |
+| `fahoba/ics-calendar` | any published iCal address as a read-only calendar |
 | `fahoba/ics-feed` | a secret calendar address per family or person |
 | `fahoba/kochwiki` | recipes from Koch-Wiki |
 | `fahoba/mcp` | Model Context Protocol for AI assistants |
@@ -450,6 +488,7 @@ FAHOBA_PLUGINS="fahoba/caldav fahoba/two-factor acme/waste:^1.2"
 | `fahoba/social-login` | sign-in with Google and others |
 | `fahoba/two-factor` | a second factor for sign-in |
 | `fahoba/webdav-backup` | nightly backup to WebDAV |
+| `fahoba/waste` | a tile with the next waste collections, from an iCal file, and a reminder the evening before (`Messenger`, `PlacedTiles`) |
 | `fahoba/webhooks` | signed POSTs on household events |
 | `fahoba/example-area` | reference: an area and a tile with settings and buttons |
 | `fahoba/example-language` | reference: a language pack, French for the first screens |
@@ -469,8 +508,8 @@ take, so two people do not build the same.
 
 - **Your language** — `--language=<code>` writes the pack; translating
   needs no PHP (`languages`).
-- **Waste collection** — a tile with the next bins, from a city's ICS or
-  open-data feed (`widgets`, `Outbound::householdGet`).
+- **Waste collection from an open-data API** — `fahoba/waste` reads iCal;
+  some cities publish only JSON (`widgets`, `Outbound::householdGet`).
 - **Public transport departures** — a tile for the nearest stop, e.g. from
   a GTFS-realtime or a national API (`widgets`, `table`, settings with a
   secret for the API key).

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import type { Locator, Page } from '@playwright/test'
+import type { Locator, Page, Response } from '@playwright/test'
 import { dropHousehold, ownHousehold, pair, tinker } from './helpers'
 
 /*
@@ -1588,46 +1588,56 @@ test('shows the progress of the chosen child on every reward', async ({ page }) 
 })
 
 /**
- * A child asks for a reward without the PIN: tap yourself, tap the card. Only
- * deciding on the request is for the parents — declining here also leaves
- * the demo data as it was.
+ * Tap a card, pick the child in the popup, confirm. The popup shows what the
+ * child has and what stays; the answer replaces it.
+ */
+async function requestReward(page: Page): Promise<{ name: string, response: Response }> {
+  const card = page.getByTestId('reward').and(page.locator(':enabled')).first()
+  const name = (await card.locator('span.font-display').innerText()).trim()
+  await card.click()
+
+  const dialog = page.getByTestId('redeem-dialog')
+  await expect(dialog).toBeVisible()
+
+  // Whoever has enough stars; the demo data decides who.
+  const chosen = dialog.getByTestId('redeem-person').and(page.locator(':enabled')).first()
+  await chosen.click()
+  await expect(dialog.getByTestId('redeem-left')).toBeVisible()
+
+  const [response] = await Promise.all([
+    page.waitForResponse(response => response.url().includes('/api/wall/rewards/') && response.request().method() === 'POST' && response.ok()),
+    dialog.getByTestId('redeem-confirm').click(),
+  ])
+
+  await expect(dialog).toBeHidden()
+  const done = page.getByTestId('redeem-done')
+  await expect(done).toContainText(name)
+  await done.getByTestId('redeem-done-close').click()
+  await expect(done).toBeHidden()
+
+  return { name, response }
+}
+
+/**
+ * A child asks for a reward without the PIN. Only deciding on the request is
+ * for the parents — declining here also leaves the demo data as it was.
  */
 test('a child requests a reward without the parent PIN', async ({ page }) => {
   await pair(page)
   await page.getByRole('button', { name: 'Sterne', exact: true }).click()
 
-  const affordable = page.getByTestId('reward').and(page.locator(':enabled'))
   const people = page.getByTestId('points-person')
   await expect(people.first()).toBeVisible()
 
-  // Whoever has enough stars for something; the demo data decides who.
-  for (const person of await people.all()) {
-    await person.click()
-    if (await affordable.count() > 0) {
-      break
-    }
-    await person.click()
-  }
-
-  const card = affordable.first()
-  const name = (await card.locator('span.font-display').innerText()).trim()
-
-  await Promise.all([
-    page.waitForResponse(response => response.url().includes('/api/wall/rewards/') && response.request().method() === 'POST' && response.ok()),
-    card.click(),
-  ])
+  const { name } = await requestReward(page)
 
   await expect(page.getByRole('dialog', { name: 'Eltern-PIN' })).toBeHidden()
 
   const request = page.getByTestId('request').filter({ hasText: `„${name}“` })
   await expect(request).toBeVisible()
 
-  // The tap answers where the child looks, beside their balance — the list
-  // above sits below the cards. Other tests' requests may add to the sum.
-  const chosen = people.and(page.locator('[aria-pressed="true"]'))
-  await expect(chosen.getByTestId('requested')).toContainText('−')
-  // And on the card that was tapped, where the finger still is.
-  await expect(page.getByTestId('reward').filter({ hasText: name }).getByTestId('reward-requested')).toBeVisible()
+  // The request shows beside the balance too — the list sits below the cards.
+  await expect(page.getByTestId('requested').first()).toContainText('−')
 
   await request.getByRole('button', { name: 'Ablehnen' }).click()
   const pin = page.getByRole('dialog', { name: 'Eltern-PIN' })
@@ -1651,25 +1661,9 @@ test('drops a request decided elsewhere at the next sync', async ({ page }) => {
   await pair(page)
   await page.getByRole('button', { name: 'Sterne', exact: true }).click()
 
-  const affordable = page.getByTestId('reward').and(page.locator(':enabled'))
-  const people = page.getByTestId('points-person')
-  await expect(people.first()).toBeVisible()
+  await expect(page.getByTestId('points-person').first()).toBeVisible()
 
-  for (const person of await people.all()) {
-    await person.click()
-    if (await affordable.count() > 0) {
-      break
-    }
-    await person.click()
-  }
-
-  const card = affordable.first()
-  const name = (await card.locator('span.font-display').innerText()).trim()
-
-  const [response] = await Promise.all([
-    page.waitForResponse(response => response.url().includes('/api/wall/rewards/') && response.request().method() === 'POST' && response.ok()),
-    card.click(),
-  ])
+  const { name, response } = await requestReward(page)
   const { id } = await response.json() as { id: number }
 
   const request = page.getByTestId('request').filter({ hasText: `„${name}“` })

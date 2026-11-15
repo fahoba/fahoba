@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Auth\AdminLogoutResponse;
+use App\Dashboard\CorePlacedTiles;
 use App\Events\DomainEvents;
 use App\Integrations\Plugins\CoreOutbound;
 use App\Integrations\ProviderRegistry;
@@ -20,11 +21,14 @@ use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use App\Security\ContentSecurityPolicy;
+use App\Services\PluginMessenger;
 use App\Support\Abilities;
 use App\Support\HouseholdContext;
 use Fahoba\PluginApi\Dashboard\ImagePolicy;
+use Fahoba\PluginApi\Dashboard\PlacedTiles;
 use Fahoba\PluginApi\Households\CurrentHousehold;
 use Fahoba\PluginApi\Http\Outbound;
+use Fahoba\PluginApi\Messages\Messenger;
 use Filament\Auth\Http\Responses\Contracts\LogoutResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -48,6 +52,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->alias(HouseholdContext::class, CurrentHousehold::class);
         $this->app->bind(ImagePolicy::class, ContentSecurityPolicy::class);
         $this->app->bind(Outbound::class, CoreOutbound::class);
+        $this->app->bind(Messenger::class, PluginMessenger::class);
+        $this->app->bind(PlacedTiles::class, CorePlacedTiles::class);
 
         // One registry per request (and per queued job): it memoizes created
         // providers, and those must not carry state across requests.

@@ -355,8 +355,7 @@
     "decline": "Decline",
     "approve": "Approve",
     "rewards": "Rewards",
-    "redeemHint": "To redeem, tap your own name above.",
-    "redeemConfirm": "Tap again to redeem for {name}",
+    "redeemHint": "Tap a reward to redeem it.",
     "noRewards": "No rewards set up yet.",
     "recent": "Recent entries",
     "older": "Older entries",
@@ -407,6 +406,22 @@
       "note": "Note (optional)",
       "notePlaceholder": "So it's enough for the cinema",
       "save": "Give away"
+    },
+    "redeem": {
+      "title": "Redeem “{reward}”",
+      "costs": "Costs",
+      "forWhom": "For whom?",
+      "has": "{name} has",
+      "left": "Left over",
+      "confirm": "Redeem",
+      "ask": "Ask",
+      "done": "Redeemed!",
+      "asked": "Asked!",
+      "doneText": "{name} redeemed “{reward}” – {n} star taken off. | {name} redeemed “{reward}” – {n} stars taken off.",
+      "askedText": "{name} would like “{reward}” for {n} star. The parents decide. | {name} would like “{reward}” for {n} stars. The parents decide.",
+      "leftNow": "{name} now has",
+      "leftAfter": "Afterwards {name} keeps",
+      "ok": "Done"
     }
   },
   "calendars": {

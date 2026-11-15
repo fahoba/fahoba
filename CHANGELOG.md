@@ -7,6 +7,35 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+### Added
+
+- **`fahoba/ics-calendar`: any published iCal address as a calendar.**
+  School, kindergarten and club publish a link, Outlook and Google hand
+  out a “secret address” — until now only CalDAV with a login or Google
+  could bring a foreign calendar onto the wall. One connection per
+  address, read-only; the file is read whole when its content changed,
+  `DTSTAMP` left out, because some servers stamp every answer anew and the
+  calendar would otherwise be rewritten every five minutes.
+- **`fahoba/waste`: a tile with the next bins**, from the municipality's
+  iCal waste calendar. Tomorrow's collection reads “put it out tonight” —
+  the evening is when it matters. The file is fetched at most every six
+  hours per address; the tile's own cache asks every minute. On request it
+  reminds the evening before — the parents or the whole family, at a time
+  chosen in the tile — through the new plugin messages; the same calendar on
+  the wall and two phones is one reminder, not three.
+
+- **Plugins can send messages — once the parents allow it.** A plugin
+  offers a sender (`offer('messages', …)`, `Messages\MessageSender`) and
+  sends through `Messages\Messenger`: to the bell, and to the parents' or
+  the whole family's phones. Unlike tiles and providers, installing is not
+  enough: parents tick each sender under Household → Messages from
+  plugins, because a message on a child's phone reaches into the family
+  the way an interface does. Ten messages per sender and household an
+  hour; a plugin that loops costs its own messages, not the family's
+  evening. `Dashboard\PlacedTiles` lets a scheduled command find a
+  plugin's tiles across households. A minor addition to
+  `fahoba/plugin-api`; nothing existing changes.
+
 ### Changed
 
 - **Arranging the start page works by touch.** On the tablet a drag
@@ -36,6 +65,13 @@ tokens; such a change is named here.
   Android gets a maskable icon of its own — the rounded tile
   cropped to a circle showed its corners — and the admin's lockup sets the
   mark beside the name without the tile.
+- **Redeeming a reward is one popup, not two taps and a name first.**
+  Tapping a card opens it: for whom (only who can afford it), how many
+  stars they have, what stays after it. Confirming closes it and a second
+  one says what was redeemed and what is left — on the wall “asked”, since
+  the parents still decide. Before, a child had to tap its own name above
+  first, and a parent's account had to tap the card twice; both were found
+  too complicated, and the second tap said nothing about the balance.
 
 ## [0.3.0] — 2026-11-12
 

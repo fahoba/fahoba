@@ -3,7 +3,7 @@ import { bookingDays, bookingText, affordable, riseKeys, share, shortfall } from
 import { formatIsoDate, zonedIso } from '../../../shared/app/utils/calendar'
 import { intlLocale } from '../../../shared/app/utils/intlLocale'
 
-import type { PointPerson } from '~/composables/usePoints'
+import type { PointPerson, RewardDto } from '~/composables/usePoints'
 
 const { t } = useI18n()
 
@@ -100,10 +100,9 @@ function decide(key: string, action: () => Promise<boolean>): void {
 
 /*
  * An account that may award stars redeems at once — the server books
- * without a request to approve. One tap would then debit for good, so the
- * card asks for a second one; the wall's tap only asks the parents.
+ * without a request to approve. The wall's tap only asks the parents.
  */
-const { kind, can } = useActor()
+const { kind, can, personId } = useActor()
 const redeemsAtOnce = computed(() => kind.value === 'user' && can('points.award'))
 
 /*
@@ -125,22 +124,60 @@ const requested = computed(() => {
 const askedFor = computed(() => new Set(
   pending.value.filter(entry => entry.person_id === who.value).map(entry => entry.reward_id),
 ))
-const { armed, tap } = useTwoStep()
 
-function submitRequest(rewardId: number): void {
-  if (who.value === null) {
+/*
+ * For whom the caller may redeem — the server holds the same rule: a child
+ * signed in on a phone wishes for itself, the wall and anyone who awards
+ * stars for every child.
+ */
+const redeemable = computed(() => kind.value === 'user' && !can('points.award')
+  ? people.value.filter(person => person.id === personId.value)
+  : people.value)
+
+const reachable = (cost: number): boolean => redeemable.value.some(person => affordable(person.balance, cost))
+
+/*
+ * Tap a card → the popup asks for whom and shows what stays; confirming
+ * closes it and opens the answer. The answer is built after the reload, so
+ * "left" is the server's balance, not a guess.
+ */
+const redeeming = ref<RewardDto | null>(null)
+const redeemed = ref<{ name: string, reward: string, icon: string | null, cost: number, left: number, booked: boolean } | null>(null)
+
+function openRedeem(reward: RewardDto): void {
+  error.value = null
+  redeeming.value = reward
+}
+
+function redeem(personId: number): void {
+  const reward = redeeming.value
+
+  if (reward === null) {
     return
   }
 
-  const person = who.value
-  const send = (): void => decide(`reward-${rewardId}`, () => requests(rewardId, person))
+  const booked = redeemsAtOnce.value
 
-  if (redeemsAtOnce.value) {
-    tap(`reward-${rewardId}`, send)
-  }
-  else {
-    send()
-  }
+  decide(`reward-${reward.id}`, async () => {
+    const done = await requests(reward.id, personId)
+
+    if (done) {
+      const person = people.value.find(entry => entry.id === personId)
+      const balance = person?.balance ?? 0
+
+      redeeming.value = null
+      redeemed.value = {
+        name: person?.name ?? '',
+        reward: reward.name,
+        icon: reward.icon,
+        cost: reward.cost,
+        left: booked ? balance : balance - reward.cost,
+        booked: booked,
+      }
+    }
+
+    return done
+  })
 }
 
 /*
@@ -387,10 +424,8 @@ const filtered = computed(() => filter.value.person !== null || filter.value.sig
           {{ $t('points.rewards') }}
         </h2>
 
-        <!-- The cards stay readable even while nobody is selected: children
-             should see what they are saving for. -->
         <p
-          v-if="who === null && rewards.length > 0"
+          v-if="rewards.length > 0"
           class="flex items-center gap-2 rounded-full bg-accent-soft px-4 py-2 text-base font-semibold text-accent"
         >
           <TwIcon name="points" :size="18" />
@@ -406,8 +441,8 @@ const filtered = computed(() => filter.value.person !== null || filter.value.sig
           data-testid="reward"
           class="tw-press flex flex-col items-start rounded-3xl bg-surface p-6 text-left shadow-card transition enabled:hover:-translate-y-0.5"
           :style="selected && askedFor.has(reward.id) ? { boxShadow: `inset 0 0 0 3px ${color(selected.color)}` } : undefined"
-          :disabled="who === null || !affordable(selected?.balance ?? 0, reward.cost) || decidingBusy"
-          @click="submitRequest(reward.id)"
+          :disabled="!reachable(reward.cost) || decidingBusy"
+          @click="openRedeem(reward)"
         >
           <span class="flex w-full items-center justify-between gap-3">
             <span
@@ -425,14 +460,6 @@ const filtered = computed(() => filter.value.person !== null || filter.value.sig
           </span>
 
           <span class="mt-3 font-display text-2xl font-semibold">{{ reward.name }}</span>
-
-          <span
-            v-if="armed === `reward-${reward.id}`"
-            data-testid="reward-confirm"
-            class="tw-pop mt-2 rounded-full bg-accent px-3 py-1 text-base font-semibold text-accent-ink"
-          >
-            {{ $t('points.redeemConfirm', { name: selected?.name ?? '' }) }}
-          </span>
 
           <span v-if="reward.description" class="mt-1 text-base text-ink-2">
             {{ reward.description }}
@@ -691,6 +718,24 @@ const filtered = computed(() => filter.value.person !== null || filter.value.sig
       @close="bonusFor = null"
       @save="giveBonus"
       @gift="giveGift"
+    />
+
+    <RedeemDialog
+      v-if="redeeming"
+      :reward="redeeming"
+      :people="redeemable"
+      :initial="who"
+      :at-once="redeemsAtOnce"
+      :busy="decidingBusy"
+      :error="error"
+      @close="redeeming = null"
+      @redeem="redeem"
+    />
+
+    <RedeemDone
+      v-if="redeemed"
+      v-bind="redeemed"
+      @close="redeemed = null"
     />
 
     <PinDialog

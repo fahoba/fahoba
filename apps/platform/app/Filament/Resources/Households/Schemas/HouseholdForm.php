@@ -8,6 +8,7 @@ use App\Enums\Backdrop;
 use App\Enums\Feature;
 use App\Enums\MealKind;
 use App\Enums\ThemeMode;
+use App\Integrations\Plugins\PluginCatalog;
 use App\Integrations\ProviderRegistry;
 use App\Models\Household;
 use App\Models\SupportAccess;
@@ -16,6 +17,7 @@ use App\Services\Photos\PhotoRules;
 use App\Support\Designs;
 use App\Support\Locale;
 use Fahoba\PluginApi\Geocoding\Coordinates;
+use Fahoba\PluginApi\Messages\MessageSender;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -284,6 +286,26 @@ class HouseholdForm
                             ->descriptions(fn (): array => array_map(fn (AreaDefinition $area): string => $area->description, self::areas(optIn: true)))
                             // A removed plugin's key drops out on the next save.
                             ->formatStateUsing(fn (?array $state): array => array_values(array_intersect((array) $state, array_keys(self::areas(optIn: true))))),
+                    ]),
+
+                /*
+                 * Like the interfaces: an installed package reaches nobody's
+                 * phone until a parent ticks it here.
+                 */
+                Section::make(__('Messages from plugins'))
+                    ->description(__('Off until switched on. A ticked plugin may send messages to the bell and the phones of this household.'))
+                    ->collapsible()
+                    ->collapsed(self::collapsedOnEdit(...))
+                    ->columnSpanFull()
+                    ->visible(fn (): bool => self::messageSenders() !== [])
+                    ->schema([
+                        CheckboxList::make('message_senders')
+                            ->hiddenLabel()
+                            ->columns(2)
+                            ->options(fn (): array => array_map(fn (MessageSender $sender): string => $sender->label(), self::messageSenders()))
+                            ->descriptions(fn (): array => array_map(fn (MessageSender $sender): string => $sender->description(), self::messageSenders()))
+                            // A removed plugin's key drops out on the next save.
+                            ->formatStateUsing(fn (?array $state): array => array_values(array_intersect((array) $state, array_keys(self::messageSenders())))),
                     ]),
 
                 Section::make(__('Stars'))
@@ -572,5 +594,14 @@ class HouseholdForm
     private static function collapsedOnEdit(string $operation): bool
     {
         return $operation === 'edit';
+    }
+
+    /** @return array<string, MessageSender> plugin key → sender */
+    private static function messageSenders(): array
+    {
+        return array_map(
+            static fn (string $class): MessageSender => app($class),
+            app(PluginCatalog::class)->offered('messages'),
+        );
     }
 }

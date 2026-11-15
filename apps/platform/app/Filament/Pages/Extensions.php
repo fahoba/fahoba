@@ -150,7 +150,7 @@ class Extensions extends Page
         $catalog = app(PluginCatalog::class);
         $lines = [];
 
-        foreach ([...array_keys(ProviderContracts::BASE), 'areas', 'widgets', 'photo_rules', 'csp', 'notices'] as $area) {
+        foreach ([...array_keys(ProviderContracts::BASE), 'areas', 'widgets', 'photo_rules', 'csp', 'notices', 'messages'] as $area) {
             foreach (array_keys($catalog->offered($area)) as $key) {
                 $lines[] = "{$key} ({$area})";
             }
