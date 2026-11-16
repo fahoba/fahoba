@@ -333,7 +333,7 @@ prüft, was nginx unter `https://fahoba.test` ausliefert — vorher also
 
 ## Stand
 
-**Version 0.3.0** (2026-11-12) — alles, was eine Familie im Alltag braucht,
+**Version 0.4.0** (2026-11-16) — alles, was eine Familie im Alltag braucht,
 ist da, an der Wand wie am Handy:
 
 - **Kalender** — eingebaut oder Google in beide Richtungen; Tag, drei Tage,
@@ -356,7 +356,8 @@ ist da, an der Wand wie am Handy:
 - **Bilderrahmen** aus Uploads und Ordnern, in fünf Darstellungen je Gerät
   (Einzelbild, Duo, Mosaik, neben Uhr und Terminen, Rückblicke), eine
   Mediathek mit Favoriten und Alben, und ein Foto vom Handy direkt an die
-  Wand.
+  Wand; unter Android aus jeder App teilen, dazu Immich, Nextcloud,
+  OneDrive, Dropbox, geteilte iCloud-Alben und Synology als Plugins.
 - **Eine App** für Wand und Handy, mit Push, Echtzeit, Deutsch und Englisch,
   hell und dunkel.
 - **Betrieb** — mehrere Haushalte auf einem Server, Betreiber mit

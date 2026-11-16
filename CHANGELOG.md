@@ -7,6 +7,13 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-11-16
+
+`fahoba/plugin-api` 0.2.0 adds messages (`Messages\*`), placed tiles
+(`Dashboard\PlacedTiles`) and remote photo sources (`Photos\RemotePhotoSource`,
+`Photos\PhotoCache`); nothing existing changes. Fahoba's own plugins now
+accept `^0.1 || ^0.2` (0.1.1); the new ones need `^0.2`.
+
 ### Added
 
 - **Share photos to the app.** On Android, Family Home Base appears in the

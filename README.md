@@ -329,7 +329,7 @@ container and checks what nginx serves at `https://fahoba.test` — so run
 
 ## Status
 
-**Version 0.3.0** (2026-11-12) — everything a family uses from day to day is
+**Version 0.4.0** (2026-11-16) — everything a family uses from day to day is
 in place, on the wall as on the phone:
 
 - **Calendar** — built in, or Google in both directions; day, three days,
@@ -352,7 +352,9 @@ in place, on the wall as on the phone:
   dimming.
 - **Photo frame** from uploads and folders in five layouts per device
   (single, duo, mosaic, beside clock and events, memories), a library with
-  favourites and albums, and a picture sent from the phone to the wall.
+  favourites and albums, and a picture sent from the phone to the wall;
+  pictures shared from any app on Android, and Immich, Nextcloud, OneDrive,
+  Dropbox, iCloud shared albums and Synology as plugins.
 - **One app** for wall and phone, with push, realtime, German and English,
   light and dark.
 - **Operation** — several households on one server, operator with support

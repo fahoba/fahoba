@@ -45,7 +45,7 @@ the area's base contract. Every method except `key()`, `label()` and
 ```json
 {
     "name": "acme/waste",
-    "require": { "php": "^8.5", "fahoba/plugin-api": "^0.1" },
+    "require": { "php": "^8.5", "fahoba/plugin-api": "^0.2" },
     "autoload": { "psr-4": { "Acme\\Waste\\": "src/" } },
     "extra": {
         "fahoba": {

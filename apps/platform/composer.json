@@ -16,7 +16,7 @@
         "laravel/sanctum": "^4.0",
         "minishlink/web-push": "^11.0",
         "rlanvin/php-rrule": "^3.0",
-        "fahoba/plugin-api": "^0.1"
+        "fahoba/plugin-api": "^0.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

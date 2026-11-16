@@ -181,7 +181,7 @@ final class MakePluginTest extends TestCase
             ->assertSuccessful();
 
         $composer = json_decode((string) file_get_contents($this->directory.'/composer.json'), true, flags: JSON_THROW_ON_ERROR);
-        $this->assertSame('^0.1', $composer['require']['fahoba/plugin-api']);
+        $this->assertSame('^0.2', $composer['require']['fahoba/plugin-api']);
 
         $loader = new ClassLoader;
         foreach ($composer['autoload']['psr-4'] as $namespace => $path) {

@@ -208,7 +208,7 @@ final class MakePluginCommand extends Command
             'version' => '0.1.0',
             // A pack is texts or tokens only, MIT keeps it open; otherwise left for the author (README).
             'license' => $language || $theme ? 'MIT' : 'proprietary',
-            'require' => ['php' => '^8.5', 'fahoba/plugin-api' => '^0.1'],
+            'require' => ['php' => '^8.5', 'fahoba/plugin-api' => '^0.2'],
             'require-dev' => ['phpunit/phpunit' => '^12.0'],
             'autoload' => ['psr-4' => [$namespace.'\\' => 'src/']],
             'autoload-dev' => ['psr-4' => [$namespace.'\\Tests\\' => 'tests/']],

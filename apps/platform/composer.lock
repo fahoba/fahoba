@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67828e25003b10f88ff5b2131e1fd5d4",
+    "content-hash": "2ede229ba1830b74621e71f08d8ec363",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -1496,11 +1496,11 @@
         },
         {
             "name": "fahoba/plugin-api",
-            "version": "0.1.0",
+            "version": "0.2.0",
             "dist": {
                 "type": "path",
                 "url": "packages/plugin-api",
-                "reference": "974068ba31debaccd280f31ef4a102552b406f69"
+                "reference": "d2b268b7a41d2b4b242bfe51485fc4dff1dcd65b"
             },
             "require": {
                 "filament/filament": "^5.10.1",
@@ -10114,14 +10114,14 @@
         },
         {
             "name": "fahoba/bring",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/bring",
-                "reference": "b5fbfad14a41741b30f333262166f91ff32b634f"
+                "reference": "33bed6167351901c716e58675c5678251b6c1452"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10146,14 +10146,14 @@
         },
         {
             "name": "fahoba/caldav",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/caldav",
-                "reference": "110d88ca46aff0c705a537ca6b49793560cb3ecd"
+                "reference": "7fd83bb8dc605d4f9b8cfc324496554a1e70d384"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5",
                 "sabre/vobject": "^4.6"
             },
@@ -10183,10 +10183,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/cloud-photos",
-                "reference": "d8a8217cdd60bcbbaba66f5a5d26bf26507bc3d4"
+                "reference": "16e485c4d553739ea362e351353cc9f7c8853d66"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10211,14 +10211,14 @@
         },
         {
             "name": "fahoba/example-area",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/example-area",
-                "reference": "6f3c0a5c63b04265b2e77ce5becb8bbc85667474"
+                "reference": "c2a92bcb1a39caed55a27d05e5781d9fb51f9ed5"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10244,14 +10244,14 @@
         },
         {
             "name": "fahoba/example-language",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/example-language",
-                "reference": "8cde3f13bf61ace4cf36fea9022e294203d5fec2"
+                "reference": "a8787e9cb93cc3f5ab9e3a52fe354ebbd327f566"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10279,14 +10279,14 @@
         },
         {
             "name": "fahoba/example-theme",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/example-theme",
-                "reference": "0b4d24f857dfaeac7ba3942d4798948936b34bf3"
+                "reference": "8b6720ee46bdcd7227b394c1483b91af21952b6d"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10315,10 +10315,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/ics-calendar",
-                "reference": "431f33aadb6a8514ad13777d98a972a1e8150508"
+                "reference": "27b56fdb0c681db046db8f122658447c6bd7c522"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5",
                 "sabre/vobject": "^4.6"
             },
@@ -10344,14 +10344,14 @@
         },
         {
             "name": "fahoba/ics-feed",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/ics-feed",
-                "reference": "c831575bf08c777681afc9dbe58ab97efe31485e"
+                "reference": "1b62a433711dc78d7ccb91b33b80a147dd798de3"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5",
                 "sabre/vobject": "^4.6"
             },
@@ -10381,10 +10381,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/immich",
-                "reference": "8c7f46ede008dcdcd137f53e5d739188120b3c3c"
+                "reference": "9c6445e0cbf1aab3d24e13edaffaf37ec75c833e"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10409,14 +10409,14 @@
         },
         {
             "name": "fahoba/kochwiki",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/kochwiki",
-                "reference": "901dde7744ce19b1e830c40208a32d9937fd1508"
+                "reference": "5f428217689816fb30fb5e3c15642900b94fb87f"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10441,14 +10441,14 @@
         },
         {
             "name": "fahoba/mcp",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/mcp",
-                "reference": "799110e56f480eb679104172b7057a21920fb49e"
+                "reference": "1bd978a37355e79191253ce6b8a06aebec96c63f"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "laravel/mcp": "^1.1",
                 "php": "^8.5"
             },
@@ -10478,10 +10478,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/nextcloud-photos",
-                "reference": "8fb8092e2e3081513121062ae912190ec64d2ce7"
+                "reference": "3dc95f06378cd2f4361960c17ccfaf91e5479bd5"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10506,15 +10506,15 @@
         },
         {
             "name": "fahoba/openapi",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/openapi",
-                "reference": "60bc744847a71f30789d9922f62e919fd973b86b"
+                "reference": "375ddd87fc98f980c13a900586a3fe4d82855c21"
             },
             "require": {
                 "dedoc/scramble": "^0.13.50",
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10543,10 +10543,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/shared-albums",
-                "reference": "56c8fb062940908633f2cffeacd7d0e010f5ee32"
+                "reference": "f35d2dd64c774638df394796c38bc141e75fd071"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10571,14 +10571,14 @@
         },
         {
             "name": "fahoba/social-login",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/social-login",
-                "reference": "b90f243585dcbbda936b6e83e6103c164d5e0ce2"
+                "reference": "b338294d775c7225213d9ef757705e3f1a32a20a"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "laravel/socialite": "^5.23",
                 "php": "^8.5"
             },
@@ -10604,14 +10604,14 @@
         },
         {
             "name": "fahoba/two-factor",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/two-factor",
-                "reference": "5115701f6e2d8f6538e567fc4cd64048e59d3a52"
+                "reference": "ba5aec28ef32878cfaddfd2a337f5ad81341cad5"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10640,10 +10640,10 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/waste",
-                "reference": "ad4fdbc07af1ecbf60e59f9a9a62524ec8c5690f"
+                "reference": "ab3fbc1b896ef3f090911b1164db25d83e46dd2b"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.2",
                 "php": "^8.5",
                 "sabre/vobject": "^4.6"
             },
@@ -10669,14 +10669,14 @@
         },
         {
             "name": "fahoba/webdav-backup",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/webdav-backup",
-                "reference": "44a3f9c2a8601945b978bb6114b292643236d7e7"
+                "reference": "fcbaaeea66eea7c9c52f7793cf3669c48485040c"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
@@ -10701,14 +10701,14 @@
         },
         {
             "name": "fahoba/webhooks",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "dist": {
                 "type": "path",
                 "url": "plugins/webhooks",
-                "reference": "1d2fb74cf002467d9b95d651d8264fba0b172bf3"
+                "reference": "26a5acc1d58b9eaecd0edd941ff384ca295a038c"
             },
             "require": {
-                "fahoba/plugin-api": "^0.1",
+                "fahoba/plugin-api": "^0.1 || ^0.2",
                 "php": "^8.5"
             },
             "type": "library",
