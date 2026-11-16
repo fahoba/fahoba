@@ -21,6 +21,7 @@ use App\Models\TaskAssignment;
 use App\Models\TaskCompletion;
 use App\Models\User;
 use App\Security\ContentSecurityPolicy;
+use App\Services\Photos\CorePhotoCache;
 use App\Services\PluginMessenger;
 use App\Support\Abilities;
 use App\Support\HouseholdContext;
@@ -29,6 +30,7 @@ use Fahoba\PluginApi\Dashboard\PlacedTiles;
 use Fahoba\PluginApi\Households\CurrentHousehold;
 use Fahoba\PluginApi\Http\Outbound;
 use Fahoba\PluginApi\Messages\Messenger;
+use Fahoba\PluginApi\Photos\PhotoCache;
 use Filament\Auth\Http\Responses\Contracts\LogoutResponse;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -54,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(Outbound::class, CoreOutbound::class);
         $this->app->bind(Messenger::class, PluginMessenger::class);
         $this->app->bind(PlacedTiles::class, CorePlacedTiles::class);
+        $this->app->bind(PhotoCache::class, CorePhotoCache::class);
 
         // One registry per request (and per queued job): it memoizes created
         // providers, and those must not carry state across requests.

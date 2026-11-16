@@ -193,6 +193,18 @@ next start; its tables stay. The list of Fahoba's own is in the
 [README](../README.md#plugins-and-interfaces); writing one:
 [plugins.md](plugins.md).
 
+**OneDrive and Dropbox** (`fahoba/cloud-photos`) need an app registered by
+the operator, once per server: in Microsoft Entra (personal accounts,
+permission `Files.ReadWrite.AppFolder`) and in the Dropbox App Console
+(“App folder” access). Their keys go into `CLOUD_PHOTOS_*` in `deploy/.env`,
+the redirect addresses are in `.env.example`. A service without keys is
+simply not offered. Families then put pictures into
+“Apps/Family Home Base” in their OneDrive or Dropbox. Immich, Nextcloud,
+iCloud shared albums and Synology shares (`fahoba/immich`,
+`fahoba/nextcloud-photos`, `fahoba/shared-albums`) need nothing on the
+server — but the family's server or NAS must be reachable from the
+internet; an address only valid at home is refused.
+
 ### Designs and other frontends
 
 A **design** (colours, font, corners) is a plugin like any other: add its

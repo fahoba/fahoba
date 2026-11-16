@@ -39,11 +39,12 @@ final class PhotoSourcesTest extends TestCase
         app(HouseholdContext::class)->setId((int) $this->household->id);
     }
 
-    public function test_three_sources_are_available(): void
+    /** The built-in three are always there; installed plugins add theirs. */
+    public function test_three_built_in_sources_are_available(): void
     {
         $sources = app(ProviderRegistry::class)->photoSources();
 
-        $this->assertSame(['builtin', 'folder', 'amazon'], array_keys($sources));
+        $this->assertSame([], array_diff(['builtin', 'folder', 'amazon'], array_keys($sources)));
         $this->assertInstanceOf(BuiltinPhotoSource::class, $sources['builtin']);
         $this->assertInstanceOf(AmazonPhotoSource::class, $sources['amazon']);
         $this->assertSame('Amazon Photos', $sources['amazon']->label());

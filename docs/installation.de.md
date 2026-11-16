@@ -201,6 +201,19 @@ nächsten Start; seine Tabellen bleiben. Die Liste der Fahoba-eigenen steht
 im [README](../README.de.md#plugins-und-schnittstellen); ein eigenes
 schreiben: [plugins.md](plugins.md) (Englisch).
 
+**OneDrive und Dropbox** (`fahoba/cloud-photos`) brauchen eine App, die der
+Betreiber einmal je Server registriert: in Microsoft Entra (persönliche
+Konten, Berechtigung `Files.ReadWrite.AppFolder`) und in der Dropbox App
+Console (Zugriff „App folder“). Die Schlüssel gehören in `CLOUD_PHOTOS_*` in
+`deploy/.env`, die Weiterleitungsadressen stehen in `.env.example`. Ein
+Dienst ohne Schlüssel wird einfach nicht angeboten. Familien legen ihre
+Bilder dann in „Apps/Family Home Base“ in ihrem OneDrive oder Dropbox ab.
+Immich, Nextcloud, geteilte iCloud-Alben und Synology-Freigaben
+(`fahoba/immich`, `fahoba/nextcloud-photos`, `fahoba/shared-albums`)
+brauchen am Server nichts – der Server oder das NAS der Familie muss aber
+aus dem Internet erreichbar sein; eine Adresse, die nur zu Hause gilt, wird
+abgelehnt.
+
 ### Designs und andere Oberflächen
 
 Ein **Design** (Farben, Schrift, Ecken) ist ein Plugin wie jedes andere:

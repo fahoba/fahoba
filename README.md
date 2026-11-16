@@ -277,6 +277,10 @@ Household → Interfaces. Fahoba's own:
 | `fahoba/two-factor` | Authenticator app as a second factor | Operations → Extensions |
 | `fahoba/social-login` | Sign in with Google (and other Socialite providers) | Operations → Extensions |
 | `fahoba/waste` | A dashboard tile with the next bins from the municipality's iCal calendar; tomorrow says “put it out tonight”; optionally a reminder to the parents or the whole family the evening before | the tile's settings; the reminder also needs Household → Messages from plugins |
+| `fahoba/immich` | An album of your own Immich server in the photo frame | Integrations → Connections (server reachable from the internet) |
+| `fahoba/nextcloud-photos` | A Nextcloud folder in the photo frame, with an app password | Integrations → Connections |
+| `fahoba/cloud-photos` | OneDrive and Dropbox in the photo frame, only the folder “Apps/Family Home Base” | the operator's app keys in `deploy/.env`, then Integrations → Connections |
+| `fahoba/shared-albums` | An iCloud shared album or a Synology Photos share by its public link | Integrations → Connections |
 
 **API tokens** (Integrations → API access) let scripts and assistants in:
 read-only or with writing, for one household, never more than the account

@@ -659,6 +659,30 @@ app/Services/Photos/PhotoLibrary.php                mixes all configured sources
   image would never be comparable. The folder button is missing on iOS, which does know
   `webkitdirectory` but only opens the photo picker. e2e uploads
   are cleaned up by the teardown via `photos.user_id`.
+- **Remote photo sources extend `RemotePhotoSource`** (plugin-api): they
+  write `listing()` and `download()`, nothing else. The listing is cached
+  ten minutes per account and credentials (a minute after a failure, so
+  an outage does not hammer the service); `file()` serves only ids of the
+  current listing — an id from a device is never passed to the service
+  unchecked. `PhotoFile` needs a local path, so downloads go through
+  `PhotoCache` (core `CorePhotoCache`): redrawn as WebP under
+  `photo-cache/<household>/<account>/`, touched on serving, dropped after
+  30 days or with the account (`fahoba:purge-photo-cache`) and with the
+  household (`HouseholdDeletion`).
+- **Plugin keys carry a slash, routes must allow it.** The photo route
+  (`{source}`) and the consent paths (`/auth/{area}/{provider}/…`) match
+  with `WallRecipeController::PROVIDER`; without it a plugin's photos and
+  OAuth answered 404.
+- **Sharing to the app is the core's way in for every photo service**
+  (`share_target` in `app/public/manifest.webmanifest`, `accept: image/*`).
+  Google Photos and Amazon have no usable interface; their apps can still
+  share. The share sheet POSTs to `/share`, which exists only in `sw.js`:
+  it keeps the pictures in the cache `fahoba-share` (images only, the
+  worker filters again) and redirects to `/?share=n`. `AppShell` takes them
+  once the household's areas are known, through `usePhotoUpload` like
+  picked ones — without the photos area or `photos.upload` they are
+  dropped with `share-refused`, never uploaded. Android only; iOS has no
+  share target. Other services are photo-source plugins.
 - **Deleting a photo is a soft delete** (`photos.deleted_at`,
   `PhotoManageController`, `GET /api/photos`, `/photos/trash`,
   `POST /photos/delete|restore|purge` with `ids`). The trash is emptied by
@@ -1172,6 +1196,10 @@ None is installed in the image; `FAHOBA_PLUGINS` picks them.
 | `fahoba/caldav` | calendar provider, both ways | Nextcloud, iCloud, mailbox.org … via `OutboundHttp` (no home-network servers). |
 | `fahoba/ics-calendar` | read-only calendar from a published iCal address | one connection per address; whole file, cursor = sha1 without `DTSTAMP` lines (servers stamp every answer); series via sabre/vobject like CalDAV; webcal:// → https://. No `WritesEvents`: local edits are overwritten on the next change there. |
 | `fahoba/waste` | dashboard tile: next waste collections from an iCal file | file cached 6 h per address (the tile's own cache asks every minute); colour dot by keyword in the title; tomorrow reads “put it out tonight”. Reminder the evening before (`remind`, `remind_at` tile settings, `fahoba:waste-reminders` every 15 min): reads tiles through `PlacedTiles`, one message per household, address and kinds a day (cache `fahoba-waste:reminded:*`, set only after it was allowed and the file read); widest audience and earliest time of the same calendar win. |
+| `fahoba/immich` | photo source: an album of the family's Immich server | API key + album name; `x-api-key`, preview thumbnail. |
+| `fahoba/nextcloud-photos` | photo source: a Nextcloud folder over WebDAV | app password; PROPFIND depth 1, recursing up to 4 levels, 5,000 files; `..` stripped from the folder. |
+| `fahoba/cloud-photos` | photo sources OneDrive and Dropbox (OAuth) | the operator's app keys (`CLOUD_PHOTOS_*`), offered only with them; reads only the app folder “Apps/Family Home Base”, so no folder step. |
+| `fahoba/shared-albums` | photo sources: iCloud shared album, Synology Photos share | by public link, no account; both undocumented (what their web pages ask), the wizard says so. iCloud via `server()` (fixed hosts, download only from `*.icloud-content.com`), Synology via `householdSend`. |
 | `fahoba/webdav-backup` | extension: nightly dump + uploads to WebDAV | operator's address, so plain `Http` — a NAS at home is allowed. |
 | `fahoba/example-area` | dev only, the reference for a plugin area and a tile | menu entry “Beispiel”, tile “Zähler” (settings, buttons, a guarded reset), e2e `plugins.spec.ts`. |
 | `fahoba/example-theme` | dev only, the reference for a design pack | “Fjord”: cool colours, rounder corners, its own glass gradient. |

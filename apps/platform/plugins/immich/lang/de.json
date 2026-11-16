@@ -1,0 +1,16 @@
+{
+    "Shows an album of your own Immich server in the photo frame.": "Zeigt ein Album eures eigenen Immich-Servers im Bilderrahmen.",
+    "Create an API key in Immich under Account settings → API keys; reading albums and assets is enough.": "Legt in Immich unter Kontoeinstellungen → API-Schlüssel einen Schlüssel an; Lesen von Alben und Medien genügt.",
+    "The server must be reachable from the internet at this address — an address only valid at home is refused.": "Der Server muss unter dieser Adresse aus dem Internet erreichbar sein – eine Adresse, die nur zu Hause gilt, wird abgelehnt.",
+    "New pictures in the album appear within ten minutes.": "Neue Bilder im Album erscheinen innerhalb von zehn Minuten.",
+    "Address": "Adresse",
+    "API key": "API-Schlüssel",
+    "Album": "Album",
+    "Family": "Familie",
+    "The album’s name as it is called in Immich.": "Der Name des Albums, wie es in Immich heißt.",
+    "The address starts with https:// or http://.": "Die Adresse beginnt mit https:// oder http://.",
+    "The server cannot be reached at this address, or the address is private.": "Unter dieser Adresse ist kein Server erreichbar, oder die Adresse ist privat.",
+    "Immich does not accept this API key.": "Immich nimmt diesen API-Schlüssel nicht an.",
+    "There is no Immich server at this address.": "Unter dieser Adresse gibt es keinen Immich-Server.",
+    "The album was not found on this Immich server.": "Das Album gibt es auf diesem Immich-Server nicht."
+}

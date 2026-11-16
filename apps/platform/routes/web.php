@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminHouseholdController;
+use App\Http\Controllers\Api\WallRecipeController;
 use App\Http\Controllers\ConnectionController;
 use App\Http\Controllers\HouseholdArchiveController;
 use App\Http\Controllers\LoginLinkController;
@@ -27,10 +28,13 @@ Route::middleware([RestrictToAllowedNetworks::class, 'auth', 'household'])->grou
         ->name('photo.preview')
         ->withTrashed();
 
+    // A plugin's provider key carries a slash (`fahoba/cloud-photos-dropbox`).
     Route::get('/auth/{area}/{provider}/redirect', [ConnectionController::class, 'redirect'])
+        ->where('provider', WallRecipeController::PROVIDER)
         ->name('connection.connect');
 
     Route::get('/auth/{area}/{provider}/callback', [ConnectionController::class, 'callback'])
+        ->where('provider', WallRecipeController::PROVIDER)
         ->name('connection.callback');
 
     Route::post('/support/enter', [SupportAccessController::class, 'enter'])->name('support.enter');

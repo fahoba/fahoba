@@ -14,6 +14,9 @@
 const CACHE = 'fahoba-wall-v1'
 const AGENDA = '/api/wall/agenda'
 
+/* Pictures shared to the app from another one, until the app picks them up — `utils/share.ts`. */
+const SHARE = 'fahoba-share'
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE)
@@ -26,7 +29,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
       .then((names) => Promise.all(
-        names.filter((name) => name !== CACHE).map((name) => caches.delete(name)),
+        names.filter((name) => name !== CACHE && name !== SHARE).map((name) => caches.delete(name)),
       ))
       .then(() => self.clients.claim()),
   )
@@ -34,6 +37,12 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request
+
+  if (request.method === 'POST' && new URL(request.url).pathname === '/share') {
+    event.respondWith(share(request))
+
+    return
+  }
 
   if (request.method !== 'GET') {
     return
@@ -59,6 +68,26 @@ self.addEventListener('fetch', (event) => {
    * file names already carry a checksum.
    */
 })
+
+/*
+ * The share sheet posts the pictures here (`share_target` in the manifest,
+ * images only). Nothing behind /share exists on the server: they wait in a
+ * cache, and the app — signed in, with its permissions — uploads them the
+ * same way as picked ones. Anything that is no picture is left out here too.
+ */
+async function share(request) {
+  const form = await request.formData()
+  const pictures = form.getAll('photos').filter((file) => file instanceof File && file.type.startsWith('image/'))
+
+  await caches.delete(SHARE)
+  const cache = await caches.open(SHARE)
+
+  await Promise.all(pictures.map((file, index) => cache.put(`/share/${index}`, new Response(file, {
+    headers: { 'Content-Type': file.type, 'X-Name': encodeURIComponent(file.name || `photo-${index}`) },
+  }))))
+
+  return Response.redirect(`/?share=${pictures.length}`, 303)
+}
 
 async function agenda(request) {
   const cache = await caches.open(CACHE)

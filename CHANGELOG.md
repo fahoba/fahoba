@@ -9,6 +9,28 @@ tokens; such a change is named here.
 
 ### Added
 
+- **Share photos to the app.** On Android, Family Home Base appears in the
+  share sheet of the gallery, Google Photos, WhatsApp and others, for
+  pictures only, and they go straight into the photo frame. Google closed
+  its photo library to other apps in March 2025 and Amazon never opened
+  one; sharing is the way in that no service can take away. The pictures
+  pass through the usual upload: shrunk on the phone, recognised the
+  second time, redrawn without location data. iOS offers no share target
+  to web apps.
+- **Photo services as plugins.** `fahoba/immich` (an album of the
+  family's own Immich), `fahoba/nextcloud-photos` (a Nextcloud folder over
+  WebDAV with an app password), `fahoba/cloud-photos` (OneDrive and Dropbox,
+  only their app folder — a family grants one folder, not its whole cloud)
+  and `fahoba/shared-albums` (an iCloud shared album or a Synology Photos
+  share, by public link). Apple and Synology document none of what their
+  sharing pages ask; the wizard says so, and a change there costs that
+  source, not the frame. Remote pictures are fetched once, redrawn and kept
+  in a cache per account (`RemotePhotoSource`, `PhotoCache` in
+  `fahoba/plugin-api`, a minor addition): a frame changing every 30 seconds
+  would otherwise download the same pictures all day. Servers and NAS must
+  be reachable from the internet; one only valid at home is refused, like
+  every address a household enters.
+
 - **`fahoba/ics-calendar`: any published iCal address as a calendar.**
   School, kindergarten and club publish a link, Outlook and Google hand
   out a “secret address” — until now only CalDAV with a login or Google

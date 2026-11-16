@@ -11,6 +11,7 @@ use App\Models\Person;
 use App\Models\Photo;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\Photos\CorePhotoCache;
 use Fahoba\PluginApi\Households\HouseholdDeleting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -69,6 +70,7 @@ final class HouseholdDeletion
         Storage::disk('local')->delete($local);
         Storage::disk('public')->delete($public);
         FolderPhotoSource::forget($id);
+        CorePhotoCache::forget($id);
         HouseholdNotices::forget($id);
     }
 }

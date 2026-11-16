@@ -58,6 +58,10 @@ Schedule::command('fahoba:purge-photo-trash')
     ->dailyAt('03:43')
     ->onOneServer();
 
+Schedule::command('fahoba:purge-photo-cache')
+    ->dailyAt('03:53')
+    ->onOneServer();
+
 Schedule::command('fahoba:renew-push-channels')
     ->dailyAt('03:17')
     ->onOneServer();

@@ -281,6 +281,10 @@ Elternteil es unter Haushalt → Schnittstellen einschaltet. Die von Fahoba:
 | `fahoba/two-factor` | Authenticator-App als zweiter Faktor | Betrieb → Erweiterungen |
 | `fahoba/social-login` | Anmelden mit Google (und anderen Socialite-Anbietern) | Betrieb → Erweiterungen |
 | `fahoba/waste` | Eine Dashboard-Kachel mit den nächsten Tonnen aus dem iCal-Abfallkalender der Gemeinde; morgen heißt „heute Abend rausstellen“; auf Wunsch eine Erinnerung am Vorabend an die Eltern oder die ganze Familie | Einstellungen der Kachel; für die Erinnerung zusätzlich Haushalt → Nachrichten von Plugins |
+| `fahoba/immich` | Ein Album des eigenen Immich-Servers im Bilderrahmen | Integrationen → Verbindungen (Server aus dem Internet erreichbar) |
+| `fahoba/nextcloud-photos` | Ein Nextcloud-Ordner im Bilderrahmen, mit App-Passwort | Integrationen → Verbindungen |
+| `fahoba/cloud-photos` | OneDrive und Dropbox im Bilderrahmen, nur der Ordner „Apps/Family Home Base“ | App-Schlüssel des Betreibers in `deploy/.env`, dann Integrationen → Verbindungen |
+| `fahoba/shared-albums` | Ein geteiltes iCloud-Album oder eine Synology-Photos-Freigabe über den öffentlichen Link | Integrationen → Verbindungen |
 
 **API-Tokens** (Integrationen → API-Zugang) lassen Skripte und Assistenten
 herein: nur lesend oder mit Schreiben, für einen Haushalt, nie mehr, als das

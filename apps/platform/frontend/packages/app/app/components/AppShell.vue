@@ -5,6 +5,7 @@ import type { ListItemDto } from '~/composables/useLists'
 import type { OccurrenceDto } from '../../../shared/app/composables/useTasks'
 import { type Area, type Mode, validMode } from '~/utils/areas'
 import { modeKey } from '~/utils/entry'
+import { sharedFromUrl, withoutShare } from '~/utils/share'
 import { areaEmoji } from '../../../shared/app/utils/areaEmoji'
 import { arranged } from '../../../shared/app/utils/menu'
 import type { Lesson } from '../../../shared/app/utils/timetable'
@@ -897,6 +898,45 @@ watch(() => cast.value?.key, (key) => {
 const managingPhotos = ref(false)
 useEscape(() => { managingPhotos.value = false }, () => managingPhotos.value)
 
+/*
+ * Pictures shared from the gallery or a messenger (`share_target`). They
+ * wait until the household's areas are known: without the photos area or
+ * the permission they are dropped with a word, never uploaded behind it.
+ */
+const sharePending = ref(false)
+const shareRefused = ref(false)
+const { take: takeShared, drop: dropShared } = useSharedPhotos()
+const { add: addUploads } = usePhotoUpload()
+
+onMounted(() => {
+  if (sharedFromUrl(window.location.search)) {
+    window.history.replaceState(null, '', withoutShare(window.location.pathname, window.location.search))
+    sharePending.value = true
+  }
+})
+
+watch([sharePending, householdAreas], async ([pending, list]) => {
+  if (!pending || list.length === 0) {
+    return
+  }
+
+  sharePending.value = false
+
+  if (!list.some(entry => entry.value === 'photos') || !can('photos.upload')) {
+    await dropShared()
+    shareRefused.value = true
+
+    return
+  }
+
+  const files = await takeShared()
+
+  if (files.length > 0) {
+    addUploads(files)
+    managingPhotos.value = true
+  }
+}, { immediate: true })
+
 /* The statistics for whoever runs the household; an account only, never the wall. */
 const viewingStatistics = ref(false)
 useEscape(() => { viewingStatistics.value = false }, () => viewingStatistics.value)
@@ -1490,6 +1530,25 @@ function completeItem(item: ListItemDto): void {
           </button>
         </nav>
       </Transition>
+
+      <div
+        v-if="shareRefused"
+        role="alert"
+        data-testid="share-refused"
+        class="fixed inset-x-4 top-4 z-50 mx-auto flex max-w-lg items-center gap-3 rounded-2xl bg-surface p-4 text-base shadow-floating"
+      >
+        <p class="flex-1">
+          {{ $t('photos.shareRefused') }}
+        </p>
+        <button
+          type="button"
+          :aria-label="$t('common.close')"
+          class="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-2 hover:bg-surface-2"
+          @click="shareRefused = false"
+        >
+          <TwIcon name="close" :size="20" />
+        </button>
+      </div>
 
       <!-- Over the frame, not instead of it: the library is a task, the frame what the area is. -->
       <div

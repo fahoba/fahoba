@@ -244,7 +244,9 @@ Route::middleware(['device.cookie', 'user.cookie', 'auth:sanctum', 'household'])
         Route::get('/wall/photos/memories', [WallPhotoController::class, 'memories']);
         Route::get('/wall/photos/albums', [WallPhotoController::class, 'albums']);
         Route::put('/wall/photos/{photo}/favorite', [WallPhotoController::class, 'favorite'])->whereNumber('photo');
-        Route::get('/wall/photos/{source}/{photo}', [WallPhotoController::class, 'show']);
+        // A plugin's source key carries a slash (`fahoba/immich`), like a recipe provider's.
+        Route::get('/wall/photos/{source}/{photo}', [WallPhotoController::class, 'show'])
+            ->where(['source' => WallRecipeController::PROVIDER, 'photo' => '[^/]+']);
         Route::middleware('permission:photos.upload')->group(function (): void {
             Route::patch('/photos/{photo}', [PhotoManageController::class, 'update'])->whereNumber('photo');
             Route::post('/photos/{photo}/show', [PhotoManageController::class, 'show'])->whereNumber('photo');

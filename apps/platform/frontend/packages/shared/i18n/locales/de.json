@@ -437,6 +437,7 @@
     "next": "Nächstes Bild",
     "none": "Noch keine Fotos.",
     "noneHint": "Fotos werden in der Verwaltung hochgeladen. Wer seine Bilder schon in einem Ordner abgleicht — etwa mit der Amazon-Photos-App —, verbindet dort eine Fotoquelle.",
+    "shareRefused": "Fotos hierher teilen geht nur mit dem Bereich Fotos und dem Recht, Fotos hochzuladen.",
     "uploadIntro": "Bilder für den Bilderrahmen an der Wand. Das Handy verkleinert sie vor dem Hochladen, Ortsangaben und andere Metadaten entfernt der Server.",
     "folder": "Ordner",
     "againHint": "Schon hochgeladene Bilder erkennt Family Home Base wieder. Einen Ordner kann man deshalb jederzeit erneut wählen — dann kommen nur die neuen dazu.",

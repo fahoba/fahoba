@@ -567,6 +567,47 @@ test('uploads a photo for the frame and recognises it the second time', async ({
 })
 
 /*
+ * Shared from the gallery: the share sheet posts to /share, the service
+ * worker keeps the pictures and opens the app, the app uploads them like
+ * picked ones. Only pictures pass — the manifest asks for `image/*`, and
+ * the worker drops anything else a sender slips in.
+ */
+test('uploads photos shared from another app', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready
+  })
+  await page.reload()
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.controller !== null)).toBe(true)
+
+  const target = await page.evaluate(async () => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 64
+    canvas.height = 48
+    const context = canvas.getContext('2d')!
+    context.fillStyle = `hsl(${Math.floor(Math.random() * 360)} 70% 50%)`
+    context.fillRect(0, 0, 64, 48)
+    context.fillText(String(Date.now()), 2, 24)
+    const jpeg = await new Promise<Blob>(resolve => canvas.toBlob(blob => resolve(blob!), 'image/jpeg'))
+
+    const form = new FormData()
+    form.append('photos', new File([jpeg], 'IMG_20260804_101010.jpg', { type: 'image/jpeg' }))
+    form.append('photos', new File(['x'], 'notes.txt', { type: 'text/plain' }))
+
+    return (await fetch('/share', { method: 'POST', body: form })).url
+  })
+
+  expect(new URL(target).search).toBe('?share=1')
+  await page.goto(target)
+
+  await expect(page.getByTestId('photo-manager')).toBeVisible()
+  await expect(page.getByTestId('upload-summary')).toHaveText('1 hochgeladen')
+  // Taken: a reload must not upload the same pictures again.
+  expect(new URL(page.url()).search).toBe('')
+  expect(await page.evaluate(async () => (await caches.keys()).includes('fahoba-share'))).toBe(false)
+})
+
+/*
  * The grid behind the upload: a long press selects, "Löschen" moves into
  * the trash, and from there the photo comes back or goes for good. The
  * picture is this run's own, so the run leaves nothing behind.
