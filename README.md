@@ -329,7 +329,7 @@ container and checks what nginx serves at `https://fahoba.test` — so run
 
 ## Status
 
-**Version 0.4.0** (2026-11-16) — everything a family uses from day to day is
+**Version 0.4.1** (2026-11-16) — everything a family uses from day to day is
 in place, on the wall as on the phone:
 
 - **Calendar** — built in, or Google in both directions; day, three days,

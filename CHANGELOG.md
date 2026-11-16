@@ -7,6 +7,15 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-11-16
+
+### Fixed
+
+- Nuxt 4.6.4 for GHSA-mjrq-cffv-q4qc and GHSA-r99w-jh2x-3mg9 (dev server
+  and nitro server). `pnpm audit` had stopped CI since 2026-11-14, so 0.4.0
+  never got its image or its split packages; 0.4.1 is the same release
+  with the fix.
+
 ## [0.4.0] — 2026-11-16
 
 `fahoba/plugin-api` 0.2.0 adds messages (`Messages\*`), placed tiles
