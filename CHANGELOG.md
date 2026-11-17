@@ -7,6 +7,14 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+### Fixed
+
+- The installed app runs full screen again (`display: fullscreen`). Merging
+  wall and phone into one app had set `standalone`; installed tablets kept
+  the old full-screen app until 0.4.0 changed name and icons, and Android
+  rebuilt it from the current manifest — with status bar and buttons. Phones
+  now run full screen too.
+
 ### Added
 
 - A third look, “Abend” (`look: evening`): warm dark mood backdrops,

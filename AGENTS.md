@@ -1525,6 +1525,10 @@ tests/Fixtures/kochwiki/                    real pages: carbonara, Sachertorte, 
 - **The area travels along in the session.** Without this check a
   callback from the calendar path could be bent into the list path, and a
   calendar token would end up in the table as a list connection.
+- **The manifest's `display` is `fullscreen`** — for the wall, phones
+  included. Android rebuilds an installed app only when name, icons or
+  `share_target` change, then with every current field: a `display`
+  change lies dormant until such a release (`mobile.spec.ts` checks it).
 - **An install band asks until the app is installed** (`InstallOffer`,
   `useInstallOffer`, pure rules in `utils/installOffer.ts`). Chromium's
   `beforeinstallprompt` fires once and before the app has mounted — the

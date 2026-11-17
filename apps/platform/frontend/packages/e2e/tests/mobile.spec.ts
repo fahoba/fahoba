@@ -58,6 +58,7 @@ async function closeSettings(page: Page): Promise<void> {
 }
 
 interface Manifest {
+  display: string
   start_url: string
   scope: string
   icons: { src: string }[]
@@ -262,6 +263,13 @@ test('is set up as one PWA for wall and phone at /', async ({ page }) => {
   const manifest: Manifest = await response.json()
   expect(new URL(manifest.start_url, manifestUrl).pathname).toBe('/')
   expect(new URL(manifest.scope, manifestUrl).pathname).toBe('/')
+  /*
+   * Full screen: on the wall the status bar and Android's buttons would
+   * frame the dashboard. It was `standalone` after wall and phone merged —
+   * unnoticed until 0.4.0 changed name and icons and Android rebuilt the
+   * installed app from the current manifest.
+   */
+  expect(manifest.display).toBe('fullscreen')
 
   // Every icon is really there — PNG first, Android ignores SVG in places.
   expect(manifest.icons[0].src).toMatch(/\.png$/)
