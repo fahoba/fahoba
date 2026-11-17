@@ -2522,7 +2522,8 @@ describe the procedures.
   those together, they pin each other exactly; drop them once
   `@nuxtjs/i18n` pulls the fixed version itself). Ignoring is
   the last resort, only where no fixed version exists; today that is
-  `deepmerge` (nitropack → `@rollup/plugin-node-resolve`). Overrides lift
+  `deepmerge` (nitropack → `@rollup/plugin-node-resolve`) and `picomatch`
+  (vite, nitropack → globby; ReDoS in glob patterns the build writes itself). Overrides lift
   `node-forge` (listhen, dev certificates), `glob` and `minimatch`
   (`@vercel/nft`, `archiver`) — drop each once Nuxt pulls the fix itself.
   Check them again on every Nuxt update.

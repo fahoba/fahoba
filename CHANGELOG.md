@@ -7,8 +7,14 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-11-17
+
 ### Fixed
 
+- `pnpm audit` stopped CI on GHSA-fc5q-39xc-vjpf (picomatch, no fixed
+  version). It reaches only build tools — vite and nitropack glob the
+  build's own patterns, the app ships static — so it is ignored in
+  `pnpm.auditConfig` until a fix exists.
 - The installed app runs full screen again (`display: fullscreen`). Merging
   wall and phone into one app had set `standalone`; installed tablets kept
   the old full-screen app until 0.4.0 changed name and icons, and Android

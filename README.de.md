@@ -333,7 +333,7 @@ prüft, was nginx unter `https://fahoba.test` ausliefert — vorher also
 
 ## Stand
 
-**Version 0.4.1** (2026-11-16) — alles, was eine Familie im Alltag braucht,
+**Version 0.5.0** (2026-11-17) — alles, was eine Familie im Alltag braucht,
 ist da, an der Wand wie am Handy:
 
 - **Kalender** — eingebaut oder Google in beide Richtungen; Tag, drei Tage,
