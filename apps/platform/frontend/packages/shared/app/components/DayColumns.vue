@@ -99,6 +99,7 @@ const heading = computed(() => props.day === props.today
         data-testid="day-column"
         :aria-label="column.name"
         class="flex min-h-[55svh] min-w-[85%] flex-1 snap-start flex-col rounded-3xl p-3 sm:min-h-0 sm:min-w-64"
+        :class="column.done ? 'tw-done' : ''"
         :style="{ background: tint(columnBackground(column)) }"
       >
         <header class="mb-3 flex items-center gap-2.5 px-1">
@@ -227,6 +228,7 @@ const heading = computed(() => props.day === props.today
       data-testid="day-column"
       :aria-label="everyone.name"
       class="flex shrink-0 flex-col gap-2 rounded-3xl p-3 sm:flex-row sm:items-center"
+      :class="everyone.done ? 'tw-done' : ''"
       :style="{ background: tint(columnBackground(everyone)) }"
     >
       <header class="flex shrink-0 items-center gap-2.5 px-1 sm:w-52">

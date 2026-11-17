@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Tile, Placement, Trade } from '~/utils/grid'
 import type { AgendaEvent } from '~/utils/calendar'
+import type { Mode } from '~/utils/areas'
 import WidgetCalendar from './widgets/WidgetCalendar.vue'
 import WidgetClock from './widgets/WidgetClock.vue'
 import WidgetGeneric from './widgets/WidgetGeneric.vue'
@@ -10,6 +11,7 @@ import WidgetMembers from './widgets/WidgetMembers.vue'
 import WidgetPhoto from './widgets/WidgetPhoto.vue'
 import WidgetRewards from './widgets/WidgetRewards.vue'
 import WidgetStars from './widgets/WidgetStars.vue'
+import WidgetStatus from './widgets/WidgetStatus.vue'
 import WidgetTasks from './widgets/WidgetTasks.vue'
 import WidgetWeather from './widgets/WidgetWeather.vue'
 import { COLUMNS, HALF_COLUMNS, cellOffset, fits, reflowed, resized, shifted, rows, stacked, traded } from '~/utils/grid'
@@ -22,7 +24,7 @@ const props = defineProps<{ timeZone: string, today: string }>()
  * Tiles lead on: a person in the tasks tile to their tasks, an event to its
  * dialog. Not while arranging — then a tap means grabbing the tile.
  */
-const emit = defineEmits<{ 'pick-event': [AgendaEvent], 'show-tasks': [number] }>()
+const emit = defineEmits<{ 'pick-event': [AgendaEvent], 'show-tasks': [number], 'show-area': [Mode] }>()
 
 const { tiles, offer, error, load, place, swap, configure, configurePlugin, add, remove } = useDashboard()
 
@@ -42,6 +44,7 @@ const COMPONENTS = {
   weather: WidgetWeather,
   clock: WidgetClock,
   photo: WidgetPhoto,
+  status: WidgetStatus,
 } as const
 
 type WidgetKey = keyof typeof COMPONENTS
@@ -421,8 +424,9 @@ async function removeTile(id: number): Promise<void> {
           @pointerup="release"
           @pointercancel="drag = null"
         >
-          <!-- A photo runs edge to edge; its title would only cover the picture. -->
-          <h3 v-if="tile.type !== 'photo'" class="mb-2 shrink-0 truncate text-sm font-bold text-ink-3">
+          <!-- A photo runs edge to edge; its title would only cover the picture.
+               The chips say what they are themselves. -->
+          <h3 v-if="tile.type !== 'photo' && tile.type !== 'status'" class="tw-label mb-2 shrink-0 truncate text-sm font-bold text-ink-3">
             {{ label.get(tile.type) ?? tile.type }}
           </h3>
 
@@ -435,6 +439,7 @@ async function removeTile(id: number): Promise<void> {
               v-bind="tile.type === 'calendar' ? { settings: tile.settings } : tile.type === 'photo' ? { settings: tile.settings, tileId: tile.id, w: tile.w, h: tile.h } : {}"
               @pick-event="(event: AgendaEvent) => editMode || emit('pick-event', event)"
               @person="(id: number) => editMode || emit('show-tasks', id)"
+              @area="(mode: Mode) => editMode || emit('show-area', mode)"
             />
             <WidgetGeneric v-else-if="generic.has(tile.type)" :tile-id="tile.id" :editing="editMode" :settings="tile.settings" />
           </div>

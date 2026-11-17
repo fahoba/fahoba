@@ -242,6 +242,25 @@ final class WallPreferencesTest extends TestCase
             ->assertUnprocessable();
     }
 
+    /** Look and wide menu: three looks, and the menu follows the look until someone chooses. */
+    public function test_a_device_chooses_the_evening_look_and_where_its_menu_sits(): void
+    {
+        $this->withToken($this->token)
+            ->getJson('/api/preferences')
+            ->assertJsonPath('preferences.look', 'classic')
+            ->assertJsonPath('preferences.wide_menu', 'auto');
+
+        $this->withToken($this->token)
+            ->putJson('/api/preferences', ['look' => 'evening', 'wide_menu' => 'side'])
+            ->assertOk()
+            ->assertJsonPath('preferences.look', 'evening')
+            ->assertJsonPath('preferences.wide_menu', 'side');
+
+        $this->withToken($this->token)
+            ->putJson('/api/preferences', ['wide_menu' => 'top'])
+            ->assertUnprocessable();
+    }
+
     public function test_the_list_is_a_calendar_view_everywhere(): void
     {
         $this->withToken($this->token)

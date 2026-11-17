@@ -57,6 +57,13 @@ final class Preferences
          */
         'phone_menu' => ['drawer', 'bottom'],
 
+        /*
+         * The menu where it fits: a bar down the side, or a floating row
+         * along the bottom. `auto` floats it with the evening look and keeps
+         * the side bar otherwise.
+         */
+        'wide_menu' => ['auto', 'side', 'bottom'],
+
         /** Colourful emoji instead of line icons in the menu. */
         'colored_icons' => ['off', 'on'],
 
@@ -75,10 +82,11 @@ final class Preferences
         'animations' => ['on', 'off'],
 
         /*
-         * Frosted glass over the household's gradient instead of plain
-         * surfaces. Per device: blur costs a weak tablet more than a phone.
+         * Plain surfaces, frosted glass over the household's gradient, or
+         * the evening look (a warm light spot, hairline cards, rounder font).
+         * Per device: blur costs a weak tablet more than a phone.
          */
-        'look' => ['classic', 'glass'],
+        'look' => ['classic', 'glass', 'evening'],
 
         /** Minutes without a touch before the wall rests. */
         'screensaver_idle' => ['5', '1', '2', '10', '15'],

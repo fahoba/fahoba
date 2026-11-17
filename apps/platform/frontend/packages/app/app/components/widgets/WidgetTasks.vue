@@ -37,13 +37,15 @@ const snapshot = computed(() => (agenda.value?.people ?? [])
         class="relative flex min-h-11 w-full items-center gap-2.5 rounded-xl px-1 text-left transition-colors hover:bg-surface-2"
         @click="emit('person', row.person.id)"
       >
-        <TwAvatar
-        :name="row.person.name"
-        :color="row.person.color"
-        :avatar="row.person.avatar"
-        :size="32"
-        aria-hidden="true"
-      />
+        <TwRing :value="row.completed / row.total" :color="row.person.color ?? undefined" :size="42" :stroke="3">
+          <TwAvatar
+            :name="row.person.name"
+            :color="row.person.color"
+            :avatar="row.person.avatar"
+            :size="30"
+            aria-hidden="true"
+          />
+        </TwRing>
 
       <span class="min-w-0 flex-1 truncate text-lg font-medium">{{ row.person.name }}</span>
 

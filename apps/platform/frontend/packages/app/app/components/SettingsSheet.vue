@@ -281,6 +281,7 @@ const DESIGNS = computed(() => (themeState.value?.designs ?? []).length === 0
       ...Object.fromEntries((themeState.value?.designs ?? []).map(design => [design.key, design.name])),
     })
 const PHONE_MENU = computed(() => ({ drawer: t('device.phoneMenuDrawer'), bottom: t('device.phoneMenuBottom') }))
+const WIDE_MENU = computed(() => ({ auto: t('device.wideMenuAuto'), side: t('device.wideMenuSide'), bottom: t('device.wideMenuBottom') }))
 
 /* Plain on/off switches for how the wall looks and moves. */
 const TOGGLES = computed((): { key: 'colored_icons' | 'colored_emoji' | 'star_filled' | 'star_color' | 'animations', label: string }[] => [
@@ -482,21 +483,23 @@ async function unpair(): Promise<void> {
             <ThemeSwitch :time-zone="props.timeZone" />
           </section>
 
+          <section class="rounded-3xl bg-surface p-4 shadow-card" aria-labelledby="look-look">
+            <h3 id="look-look" class="mb-3 text-lg font-semibold">{{ $t('device.look') }}</h3>
+            <ChoiceChips
+              :options="[
+                { value: 'classic', label: $t('device.lookClassic') },
+                { value: 'glass', label: $t('device.lookGlass') },
+                { value: 'evening', label: $t('device.lookEvening') },
+              ]"
+              :model-value="preferences.look"
+              labelled-by="look-look"
+              test-id="preference"
+              cell="look"
+              @update:model-value="emit('set', 'look', $event)"
+            />
+          </section>
+
           <ul class="divide-y divide-line overflow-hidden rounded-3xl bg-surface shadow-card">
-            <li>
-              <button
-                type="button"
-                role="switch"
-                data-testid="preference"
-                data-cell="look"
-                :aria-checked="preferences.look === 'glass'"
-                class="flex min-h-14 w-full items-center gap-4 px-4 py-3 text-left text-lg font-semibold"
-                @click="emit('set', 'look', preferences.look === 'glass' ? 'classic' : 'glass')"
-              >
-                <span class="flex-1">{{ $t('device.glass') }}</span>
-                <SwitchKnob :on="preferences.look === 'glass'" />
-              </button>
-            </li>
             <li v-for="toggle in TOGGLES" :key="toggle.key">
               <button
                 type="button"
@@ -535,7 +538,7 @@ async function unpair(): Promise<void> {
             </div>
           </section>
 
-          <section v-if="preferences.look === 'glass'" class="rounded-3xl bg-surface p-4 shadow-card" aria-labelledby="look-backdrop">
+          <section v-if="preferences.look !== 'classic'" class="rounded-3xl bg-surface p-4 shadow-card" aria-labelledby="look-backdrop">
             <h3 id="look-backdrop" class="mb-3 text-lg font-semibold">{{ $t('device.backdrop') }}</h3>
             <div role="group" aria-labelledby="look-backdrop" class="flex flex-wrap gap-1.5">
               <button
@@ -733,6 +736,18 @@ async function unpair(): Promise<void> {
                 {{ label }}
               </button>
             </div>
+          </section>
+
+          <section class="rounded-3xl bg-surface p-4 shadow-card" aria-labelledby="start-wide-menu">
+            <h3 id="start-wide-menu" class="mb-3 text-lg font-semibold">{{ $t('device.wideMenu') }}</h3>
+            <ChoiceChips
+              :options="Object.entries(WIDE_MENU).map(([value, label]) => ({ value, label }))"
+              :model-value="preferences.wide_menu"
+              labelled-by="start-wide-menu"
+              test-id="preference"
+              cell="wide_menu"
+              @update:model-value="emit('set', 'wide_menu', $event)"
+            />
           </section>
 
           <section class="rounded-3xl bg-surface p-4 shadow-card" aria-labelledby="start-phone-menu">

@@ -1226,6 +1226,33 @@ test('jumps from the tasks tile to that person and keeps the choice', async ({ p
   await chip.click()
 })
 
+test('shows the household at a glance in the overview tile', async ({ page }) => {
+  await pair(page)
+  await page.getByRole('button', { name: 'Start', exact: true }).click()
+  await expect(page.getByTestId('dashboard-grid')).toBeVisible()
+
+  await page.getByTestId('dashboard-edit').click()
+  const pin = page.getByRole('dialog', { name: 'Eltern-PIN' })
+  for (const rank of [0, 1, 2, 3]) {
+    await pin.getByTestId('pin-key').nth(rank).click()
+  }
+  await pin.getByRole('button', { name: 'OK' }).click()
+
+  await page.getByTestId('widget-picker').click()
+  await page.getByTestId('widget-offer').filter({ hasText: 'Überblick' }).click()
+  await page.getByTestId('dashboard-edit').click()
+  await expect(page.getByTestId('dashboard-edit')).toHaveAttribute('aria-pressed', 'false')
+
+  // One chip per area the demo household has on, each saying something.
+  const chips = page.getByTestId('status-chip')
+  for (const area of ['tasks', 'calendar', 'lists', 'meals']) {
+    await expect(chips.and(page.locator(`[data-value="${area}"]`))).toBeVisible()
+  }
+
+  await chips.and(page.locator('[data-value="lists"]')).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Listen')
+})
+
 test('opens an event from the calendar tile', async ({ page }) => {
   await pair(page)
   await page.getByRole('button', { name: 'Start', exact: true }).click()
@@ -1774,23 +1801,29 @@ test('switches to colourful menu icons and stills animations', async ({ page }) 
   await expect(icons).toHaveAttribute('aria-checked', 'true')
 })
 
-/** Glass is the tablet's choice; the gradient behind it is the household's. */
-test('switches to the glass look over the household gradient', async ({ page }) => {
+/** The look is the tablet's choice; the gradient behind it is the household's. */
+test('switches to the glass and evening looks over the household gradient', async ({ page }) => {
   await pair(page)
   await expect(page.locator('html')).toHaveAttribute('data-look', 'classic')
   await expect(page.locator('html')).toHaveAttribute('data-backdrop', /.+/)
 
   const dialog = await deviceSettings(page, 'appearance')
-  const glass = dialog.locator('[data-testid="preference"][data-cell="look"]')
-  await expect(glass).toHaveAttribute('aria-checked', 'false')
+  const look = (value: string) => dialog.locator(`[data-testid="preference"][data-cell="look"][data-value="${value}"]`)
+  await expect(look('classic')).toHaveAttribute('aria-pressed', 'true')
 
-  await Promise.all([
-    page.waitForResponse(response => response.url().endsWith('/api/preferences') && response.request().method() === 'PUT'),
-    glass.click(),
-  ])
-  await expect(page.locator('html')).toHaveAttribute('data-look', 'glass')
-  await expect(glass).toHaveAttribute('aria-checked', 'true')
-  expect(await page.locator('html').evaluate(html => getComputedStyle(html).backgroundImage)).toContain('radial-gradient')
+  for (const value of ['glass', 'evening']) {
+    await Promise.all([
+      page.waitForResponse(response => response.url().endsWith('/api/preferences') && response.request().method() === 'PUT'),
+      look(value).click(),
+    ])
+    await expect(page.locator('html')).toHaveAttribute('data-look', value)
+    await expect(look(value)).toHaveAttribute('aria-pressed', 'true')
+    expect(await page.locator('html').evaluate(html => getComputedStyle(html).backgroundImage)).toContain('radial-gradient')
+  }
+
+  // The evening look brings its own, rounder font, and floats the menu along the bottom.
+  expect(await page.locator('body').evaluate(body => getComputedStyle(body).fontFamily)).toContain('Outfit')
+  await expect(page.getByTestId('floating-menu')).toBeVisible()
 })
 
 /*
@@ -1965,4 +1998,44 @@ test('unpairs the tablet behind the PIN and shows the start page', async ({ page
   // Still the start page after a reload: the cookie is gone, not just hidden.
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Willkommen bei Family Home Base' })).toBeVisible()
+})
+
+/*
+ * Ticks every task of a child, so it runs in a household of its own: the
+ * demo children's stars are counted by other tests.
+ */
+test.describe('the evening look in a household of its own', () => {
+  let household: number
+
+  test.beforeAll(() => {
+    household = ownHousehold('Ida')
+  })
+
+  test.afterAll(() => {
+    dropHousehold(household)
+  })
+
+  test('turns a finished column into a light card', async ({ page }) => {
+    await pair(page, household)
+    tinker(`App\\Models\\Device::withoutHouseholdScope()->where("household_id", ${household})->latest("id")->first()->update(["preferences" => ["look" => "evening", "task_view" => "day"]]);`)
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-look', 'evening')
+    await expect(page.getByTestId('floating-menu')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Aufgaben', exact: true }).click()
+    const column = page.getByTestId('day-column').filter({ has: page.getByText('Ida', { exact: true }) }).first()
+    const details = page.getByTestId('task-details')
+    await expect(column.getByTestId('column-open-task').first()).toBeVisible()
+    await expect(column).not.toHaveClass(/tw-done/)
+
+    while (await column.getByTestId('column-open-task').count() > 0) {
+      await column.getByTestId('column-open-task').first().click()
+      await details.getByTestId('task-details-complete').click()
+      await expect(details).toBeHidden()
+    }
+
+    await expect(column.getByTestId('column-done')).toBeVisible()
+    await expect(column).toHaveClass(/tw-done/)
+    await expect(column).toHaveCSS('background-color', 'rgb(251, 247, 243)')
+  })
 })

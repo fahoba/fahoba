@@ -843,6 +843,13 @@ const drawer = ref(false)
  * stays: settings and the admin live in the drawer.
  */
 const bottomBar = computed(() => narrow.value && !resting.value && preferences.value.phone_menu === 'bottom')
+
+/*
+ * Where it fits, the menu may float along the bottom instead of standing
+ * down the side: the page gets the whole width. `auto` follows the look.
+ */
+const floatingBar = computed(() => !narrow.value && !resting.value
+  && (preferences.value.wide_menu === 'bottom' || (preferences.value.wide_menu === 'auto' && preferences.value.look === 'evening')))
 useEscape(() => { drawer.value = false }, () => drawer.value)
 
 watch(narrow, (now) => {
@@ -1016,7 +1023,7 @@ function completeItem(item: ListItemDto): void {
       />
 
       <nav
-        v-if="!resting && !narrow"
+        v-if="!resting && !narrow && !floatingBar"
         :aria-label="$t('common.areas')"
         class="flex w-28 shrink-0 flex-col gap-1 border-r border-line bg-surface px-2 pt-4 pb-2"
       >
@@ -1225,7 +1232,7 @@ function completeItem(item: ListItemDto): void {
           class="min-h-0 flex-1"
           :class="[
             resting ? 'rest-fade' : '',
-            bleed ? '' : bottomBar ? 'overflow-y-auto px-3 pb-3' : narrow ? 'overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]' : mode === 'photos' ? 'px-4 pb-4' : 'px-8 pb-6',
+            bleed ? '' : bottomBar ? 'overflow-y-auto px-3 pb-3' : narrow ? 'overflow-y-auto px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]' : mode === 'photos' ? (floatingBar ? 'px-4 pb-28' : 'px-4 pb-4') : floatingBar ? 'px-8 pb-28' : 'px-8 pb-6',
           ]"
         >
           <div v-if="mode === 'calendar'" data-testid="calendar" class="flex h-full flex-col gap-3">
@@ -1352,6 +1359,7 @@ function completeItem(item: ListItemDto): void {
             :today="todayIso"
             @pick-event="openEvent"
             @show-tasks="showTasks"
+            @show-area="go"
           />
 
           <div v-else-if="mode === 'photos'" class="relative h-full">
@@ -1406,6 +1414,87 @@ function completeItem(item: ListItemDto): void {
             ><TwEmoji :icon="areaEmoji(entry.icon) ?? ''" colored /></span>
             <TwIcon v-else :name="entry.icon" :size="22" />
             <span class="max-w-full truncate">{{ entry.label }}</span>
+          </button>
+        </nav>
+
+        <!-- Floats over the page's bottom edge; `main` leaves room for it.
+             `shadow-floating` gives it the looks' frosted surface. -->
+        <nav
+          v-if="floatingBar"
+          data-testid="floating-menu"
+          :aria-label="$t('common.areas')"
+          class="fixed bottom-4 left-1/2 z-30 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1 rounded-3xl bg-surface p-1.5 shadow-floating"
+        >
+          <button
+            v-if="!device && householdName"
+            type="button"
+            data-testid="menu-household"
+            class="tw-press flex min-h-16 max-w-32 shrink-0 items-center gap-0.5 rounded-2xl px-3 text-sm font-semibold text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink"
+            @click="openHouseholds"
+          >
+            <span class="truncate">{{ householdName }}</span>
+            <TwIcon name="down" :size="14" class="shrink-0" />
+          </button>
+
+          <div class="relative flex min-w-0 gap-1 overflow-x-auto">
+            <button
+              v-for="entry in areas"
+              :key="entry.value"
+              type="button"
+              data-testid="mode"
+              :aria-current="mode === entry.value ? 'page' : undefined"
+              class="tw-press flex min-h-16 min-w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl px-3 text-sm font-semibold transition-colors"
+              :class="mode === entry.value
+                ? 'bg-accent-soft text-accent'
+                : 'text-ink-2 hover:bg-surface-2 hover:text-ink'"
+              @click="mode = entry.value"
+            >
+              <span
+                v-if="coloredIcons && areaEmoji(entry.icon)"
+                aria-hidden="true"
+                data-testid="mode-emoji"
+                class="text-[24px] leading-none"
+                :class="mode === entry.value ? 'tw-pop' : ''"
+              ><TwEmoji :icon="areaEmoji(entry.icon) ?? ''" colored /></span>
+              <TwIcon v-else :name="entry.icon" :size="24" />
+              {{ entry.label }}
+            </button>
+          </div>
+
+          <span aria-hidden="true" class="mx-1 h-10 w-px shrink-0 bg-line" />
+
+          <button
+            v-if="!device && can('household.manage')"
+            type="button"
+            data-testid="statistics-link"
+            :aria-label="$t('menu.statistics')"
+            class="flex size-12 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink"
+            @click="openStatistics"
+          >
+            <TwIcon name="statistics" :size="22" />
+          </button>
+
+          <a
+            v-if="!device && can('household.manage')"
+            href="/admin"
+            data-testid="admin-link"
+            :aria-label="$t('menu.admin')"
+            class="flex size-12 shrink-0 items-center justify-center rounded-full text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <TwIcon name="admin" :size="22" />
+          </a>
+
+          <button
+            type="button"
+            data-testid="theme"
+            aria-haspopup="dialog"
+            :aria-expanded="themeOpen"
+            :aria-label="$t('device.title')"
+            class="flex size-12 shrink-0 items-center justify-center rounded-full transition-colors"
+            :class="themeOpen ? 'bg-surface-2 text-ink' : 'text-ink-3 hover:bg-surface-2 hover:text-ink'"
+            @click="settingsStart = null; themeOpen = !themeOpen"
+          >
+            <TwIcon name="settings" :size="22" />
           </button>
         </nav>
 
@@ -1627,7 +1716,9 @@ function completeItem(item: ListItemDto): void {
           data-testid="settings-sheet"
           :class="narrow
             ? 'max-h-[90vh] w-full overflow-y-auto rounded-t-[2rem] bg-canvas px-4 pt-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-floating'
-            : 'absolute bottom-4 left-32 max-h-[calc(100vh-2rem)] w-[32rem] max-w-[calc(100vw-9rem)] overflow-y-auto rounded-3xl border border-line bg-canvas p-6 shadow-floating'"
+            : floatingBar
+              ? 'absolute right-4 bottom-28 max-h-[calc(100vh-8rem)] w-[32rem] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-3xl border border-line bg-canvas p-6 shadow-floating'
+              : 'absolute bottom-4 left-32 max-h-[calc(100vh-2rem)] w-[32rem] max-w-[calc(100vw-9rem)] overflow-y-auto rounded-3xl border border-line bg-canvas p-6 shadow-floating'"
         >
           <SettingsSheet
             :preferences="preferences"

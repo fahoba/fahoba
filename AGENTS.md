@@ -242,6 +242,15 @@ Filament 3. Here the respective current major versions are used on purpose, beca
   `text-ink-2`, `border-line`, `bg-accent` and so on. Never `bg-white` or
   `text-slate-*` — in the dark theme exactly that spot would stay light. Only
   person and list colours come as hex from the database and are set inline.
+- **The evening look shares glass's machinery.** `look` is `classic`,
+  `glass` or `evening`; rules both need are written
+  `:root:is([data-look="glass"], [data-look="evening"])`, so a fix to the
+  backdrop or blur reaches both. Evening's own extras hang on helper
+  classes that do nothing in the other looks: `tw-label` (tile and section
+  titles as spaced capitals), `tw-done` (a finished column as a light card;
+  it re-declares the ink tokens, because the card stays light in the dark
+  theme). `wide_menu: auto` floats the menu with this look (`floatingBar`
+  in `AppShell`, `data-testid="floating-menu"`).
 - **The glass look is tokens, not components.** `<html data-look>` comes
   from the `look` preference (per device/account, `classic` while resting),
   `data-backdrop` from `/api/theme` (`households.backdrop`, enum `Backdrop`,

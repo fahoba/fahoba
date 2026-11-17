@@ -9,6 +9,8 @@ export interface Preferences {
   menu_top: string
   /** Narrow menu: `drawer` behind the burger, or `bottom` as a row of icons. */
   phone_menu: string
+  /** Where it fits: `auto` (bottom with the evening look), `side` or `bottom`. */
+  wide_menu: string
   /** Emoji instead of line icons in the menu. */
   colored_icons: string
   /** Task and reward icons in colour (`on`) or grey (`off`). */
@@ -18,7 +20,7 @@ export interface Preferences {
   star_color: string
   /** 'off' stills every animation on this device. */
   animations: string
-  /** `glass`: frosted surfaces over the household's gradient. */
+  /** `classic`, `glass` (frosted over the household's gradient) or `evening` (warm, hairline cards). */
   look: string
   /** The gradient behind the glass: `household` or a backdrop of its own. */
   backdrop: string
@@ -68,6 +70,7 @@ export function usePreferences() {
     school_band: 'off',
     menu_top: 'logo',
     phone_menu: 'drawer',
+    wide_menu: 'auto',
     colored_icons: 'off',
     colored_emoji: 'on',
     star_filled: 'off',

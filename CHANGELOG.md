@@ -7,6 +7,22 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+### Added
+
+- A third look, “Abend” (`look: evening`): warm dark mood backdrops,
+  translucent hairline cards, teal accent, the rounder Outfit font. It
+  shares the glass look's machinery (backdrop, blur on floating panels) and
+  the household's backdrop choice; the settings offer the three looks as
+  chips instead of a glass switch.
+- The menu can float along the bottom on large screens (`wide_menu`:
+  `auto`, `side`, `bottom`). `auto` floats it with the evening look, so the
+  page gets the whole width without anyone choosing.
+- Dashboard tile “Überblick” (`status`): one chip per area — open tasks,
+  today's events, what is missing at home, today's meal — each leading to
+  its area.
+- The tasks tile draws a progress ring around each person; in the evening
+  look a finished column turns into a light card and tile titles become
+  small spaced capitals — the state reads from across the room.
 ## [0.4.1] — 2026-11-16
 
 ### Fixed

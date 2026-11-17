@@ -601,7 +601,10 @@
     "coloredIcons": "Farbige Symbole im Menü",
     "coloredEmoji": "Farbige Symbole bei Aufgaben und Belohnungen",
     "animations": "Animationen",
-    "glass": "Glas-Look",
+    "look": "Aussehen",
+    "lookClassic": "Klassisch",
+    "lookGlass": "Glas",
+    "lookEvening": "Abend",
     "backdrop": "Hintergrund",
     "backdropHousehold": "Wie im Haushalt",
     "backdropDawn": "Morgenröte",
@@ -613,6 +616,10 @@
     "design": "Design",
     "menuTop": "Oben im Menü",
     "menuTopLogo": "Logo",
+    "wideMenu": "Menü auf großen Bildschirmen",
+    "wideMenuAuto": "Passend zum Aussehen",
+    "wideMenuSide": "Seitenleiste",
+    "wideMenuBottom": "Leiste unten",
     "phoneMenu": "Menü auf dem Handy",
     "phoneMenuDrawer": "Ausklappen",
     "phoneMenuBottom": "Leiste unten",
@@ -842,5 +849,11 @@
     "cell": "{person}: {count}× {task}",
     "column": "{label}: {count} erledigt",
     "failed": "Die Statistik ließ sich nicht laden."
+  },
+  "status": {
+    "allDone": "Alles erledigt",
+    "eventsToday": "Nichts heute | 1 Termin heute | {n} Termine heute",
+    "nothingMissing": "Nichts fehlt",
+    "nothingPlanned": "Nichts geplant"
   }
 }

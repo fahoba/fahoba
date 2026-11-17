@@ -210,6 +210,13 @@ return [
 
     'widgets' => [
 
+        'status' => [
+            'label' => 'Überblick',
+            'description' => 'Offene Aufgaben, Termine, Einkauf und Essen auf einen Blick.',
+            'w' => 12,
+            'h' => 1,
+        ],
+
         'calendar' => [
             'label' => 'Termine',
             'description' => 'Was als Nächstes ansteht.',

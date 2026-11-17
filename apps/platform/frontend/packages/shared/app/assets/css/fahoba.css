@@ -16,6 +16,7 @@
  */
 @import "tailwindcss";
 @import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/outfit";
 
 /* The components of this layer live outside the respective app and would
    otherwise be missed when the classes are generated. */
@@ -298,21 +299,189 @@
 }
 
 /*
+ * Evening look: a room at dusk rather than a sheet of glass.
+ *
+ * One warm light spot on a deep tone, cards that are barely there — a
+ * hairline and a breath of light — and popups as solid dark sheets above
+ * it. Rounder corners, a rounder font and a calm teal for what is active,
+ * so the people's colours stay the loudest thing on the wall. By day the
+ * same room with the lights on: the spot stays, the tone turns pale.
+ *
+ * Shares the gradient and blur rules with the glass look; only tokens
+ * differ. The backdrops keep their keys and get evening moods: dawn is
+ * ember, lagoon deep sea, meadow forest, dusk plum, sand charcoal.
+ */
+:root[data-look="evening"] {
+  --font-body: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Outfit Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --corner-lg: 0.75rem;
+  --corner-xl: 1rem;
+  --corner-2xl: 1.25rem;
+  --corner-3xl: 1.5rem;
+
+  --surface: rgb(255 255 255 / 0.5);
+  --surface-2: rgb(60 30 30 / 0.06);
+  --surface-3: rgb(60 30 30 / 0.11);
+  --line: rgb(60 30 30 / 0.1);
+  --ink: #2a1c1d;
+  --ink-2: #5c4a4a;
+  --ink-3: #6e5b5a;
+  --accent: #0f766e;
+  --accent-soft: rgb(15 118 110 / 0.12);
+  --accent-ink: #ffffff;
+  --today: #0f766e;
+  --today-ink: #ffffff;
+  --tint-soft: rgb(255 255 255 / 0.8);
+  --tint-solid: rgb(255 255 255 / 0.94);
+  --glass-floating: rgb(255 250 247 / 0.9);
+  --scrim: rgb(30 16 18 / 0.22);
+  --field: rgb(255 255 255 / 0.6);
+
+  --elevation: inset 0 0 0 1px rgb(255 255 255 / 0.55);
+  --elevation-floating: inset 0 0 0 1px rgb(255 255 255 / 0.7), 0 28px 64px -24px rgb(40 16 18 / 0.35);
+
+  --canvas: #efe1dc;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #f6c9b5 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #e2cbd2 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"] {
+  --surface: rgb(255 236 230 / 0.07);
+  --surface-2: rgb(255 255 255 / 0.08);
+  --surface-3: rgb(255 255 255 / 0.14);
+  --line: rgb(255 255 255 / 0.11);
+  --ink: #f7efea;
+  --ink-2: #d4c4bd;
+  --ink-3: #b9a69e;
+  --accent: #62c7b0;
+  --accent-soft: rgb(98 199 176 / 0.16);
+  --accent-ink: #0d2420;
+  --today: #62c7b0;
+  --today-ink: #0d2420;
+  --tint-soft: rgb(36 22 24 / 0.78);
+  --tint-solid: rgb(36 22 24 / 0.92);
+  --glass-floating: rgb(30 26 29 / 0.94);
+  --scrim: rgb(8 4 6 / 0.4);
+  --field: rgb(0 0 0 / 0.22);
+
+  --elevation: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  --elevation-floating: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 28px 64px -24px rgb(0 0 0 / 0.75);
+
+  --canvas: #2b1a1d;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(150 82 66 / 0.75) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #3a1c24 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-backdrop="lagoon"] {
+  --canvas: #dde9ee;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #b2d6e3 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #c9d3ec 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-backdrop="meadow"] {
+  --canvas: #e1eadf;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #c4dfba 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #d6e2cf 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-backdrop="dusk"] {
+  --canvas: #e7dfee;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #d7c2ea 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #e8cfe0 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-backdrop="sand"] {
+  --canvas: #e8e4e0;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #d9d1c8 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #dcd8d4 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-backdrop="slate"] {
+  --canvas: #dfe4ec;
+  --backdrop: radial-gradient(ellipse at 30% 22%, #c5d0e2 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #d3d8e3 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"][data-backdrop="lagoon"] {
+  --canvas: #0f1f2b;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(52 108 132 / 0.75) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #13283a 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"][data-backdrop="meadow"] {
+  --canvas: #131f17;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(62 100 68 / 0.75) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #18281d 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"][data-backdrop="dusk"] {
+  --canvas: #221a30;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(112 74 146 / 0.7) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #2e1a35 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"][data-backdrop="sand"] {
+  --canvas: #1c1b1c;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(86 78 74 / 0.7) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #232022 0, transparent 55%);
+}
+
+:root[data-look="evening"][data-theme="dark"][data-backdrop="slate"] {
+  --canvas: #1a2230;
+  --backdrop: radial-gradient(ellipse at 30% 22%, rgb(72 92 124 / 0.7) 0, transparent 60%), radial-gradient(ellipse at 85% 95%, #1f2838 0, transparent 55%);
+}
+
+/*
+ * Section and tile titles: small, spaced capitals in the evening look, so
+ * they sit back as labels and the content speaks.
+ */
+:root[data-look="evening"] .tw-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
+ * A finished column turns into a light card in the evening look — the
+ * state is read from across the room, the way a lit lamp is. The tint is
+ * an inline style, hence `!important`; the column re-declares its tokens
+ * so everything inside stays readable on the light card.
+ */
+:root[data-look="evening"] .tw-done {
+  --ink: #2a1c1d;
+  --ink-2: #5c4a4a;
+  --ink-3: #6e5b5a;
+  --surface: rgb(42 28 29 / 0.05);
+  --surface-2: rgb(42 28 29 / 0.06);
+  --surface-3: rgb(42 28 29 / 0.1);
+  --line: rgb(42 28 29 / 0.1);
+  --success: #067647;
+  --tint-soft: #fbf7f3;
+  --tint-solid: #fbf7f3;
+
+  background: #fbf7f3 !important;
+  color: var(--ink);
+}
+
+/*
+ * Inside a popup the evening look lifts its cards a step above the sheet,
+ * so sections read as things on it rather than holes in it.
+ */
+:root[data-look="evening"] .shadow-floating .shadow-card {
+  --surface: rgb(255 255 255 / 0.7);
+}
+
+:root[data-look="evening"][data-theme="dark"] .shadow-floating .shadow-card {
+  --surface: rgb(255 255 255 / 0.06);
+}
+
+/*
  * Fixed to the screen, so a sticky bar in `bg-canvas` and the page below
  * it show the same spot of the gradient — no seam where it sticks.
  */
-:root[data-look="glass"],
-:root[data-look="glass"] .bg-canvas {
+:root:is([data-look="glass"], [data-look="evening"]),
+:root:is([data-look="glass"], [data-look="evening"]) .bg-canvas {
   background-image: var(--backdrop);
   background-attachment: fixed;
 }
 
-:root[data-look="glass"] :is(input, textarea, select).bg-canvas {
+:root:is([data-look="glass"], [data-look="evening"]) :is(input, textarea, select).bg-canvas {
   background-image: none;
   background-color: var(--field);
 }
 
-:root[data-look="glass"] :is(.shadow-floating, .sticky) {
+:root:is([data-look="glass"], [data-look="evening"]) :is(.shadow-floating, .sticky) {
   --surface: var(--glass-floating);
 
   -webkit-backdrop-filter: blur(28px) saturate(1.6);
@@ -328,11 +497,11 @@
   opacity: 0.5;
 }
 
-:root[data-look="glass"] .tw-past {
+:root:is([data-look="glass"], [data-look="evening"]) .tw-past {
   opacity: 1;
 }
 
-:root[data-look="glass"] .tw-past > * {
+:root:is([data-look="glass"], [data-look="evening"]) .tw-past > * {
   opacity: 0.5;
 }
 
@@ -348,7 +517,17 @@
     --glass-floating: #1c1c22;
   }
 
-  :root[data-look="glass"] :is(.shadow-floating, .sticky) {
+  :root[data-look="evening"] {
+    --surface: rgb(255 250 247 / 0.94);
+    --glass-floating: #fffaf7;
+  }
+
+  :root[data-look="evening"][data-theme="dark"] {
+    --surface: rgb(46 32 34 / 0.96);
+    --glass-floating: #1e1a1d;
+  }
+
+  :root:is([data-look="glass"], [data-look="evening"]) :is(.shadow-floating, .sticky) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

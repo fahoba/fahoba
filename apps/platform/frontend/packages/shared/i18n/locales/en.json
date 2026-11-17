@@ -601,7 +601,10 @@
     "coloredIcons": "Colourful menu icons",
     "coloredEmoji": "Colourful task and reward icons",
     "animations": "Animations",
-    "glass": "Glass look",
+    "look": "Look",
+    "lookClassic": "Classic",
+    "lookGlass": "Glass",
+    "lookEvening": "Evening",
     "backdrop": "Background",
     "backdropHousehold": "As in the household",
     "backdropDawn": "Dawn",
@@ -613,6 +616,10 @@
     "design": "Design",
     "menuTop": "Top of the menu",
     "menuTopLogo": "Logo",
+    "wideMenu": "Menu on large screens",
+    "wideMenuAuto": "Follow the look",
+    "wideMenuSide": "Side bar",
+    "wideMenuBottom": "Bar at the bottom",
     "phoneMenu": "Menu on the phone",
     "phoneMenuDrawer": "Behind the button",
     "phoneMenuBottom": "Bar at the bottom",
@@ -842,5 +849,11 @@
     "cell": "{person}: {count}× {task}",
     "column": "{label}: {count} done",
     "failed": "The statistics could not be loaded."
+  },
+  "status": {
+    "allDone": "All done",
+    "eventsToday": "Nothing today | 1 event today | {n} events today",
+    "nothingMissing": "Nothing missing",
+    "nothingPlanned": "Nothing planned"
   }
 }

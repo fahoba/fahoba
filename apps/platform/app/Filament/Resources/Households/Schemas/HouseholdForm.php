@@ -432,13 +432,13 @@ class HouseholdForm
                             ->columnSpanFull(),
 
                         Select::make('backdrop')
-                            ->label(__('Glass look background'))
+                            ->label(__('Background of the glass and evening looks'))
                             ->options(collect(Backdrop::cases())
                                 ->mapWithKeys(fn (Backdrop $backdrop): array => [$backdrop->value => $backdrop->label()])
                                 ->all())
                             ->default(Backdrop::Dawn->value)
                             ->required()
-                            ->helperText(__('Shown on devices and phones that switch on the glass look in their settings.'))
+                            ->helperText(__('Shown on devices and phones that choose the glass or evening look in their settings.'))
                             ->columnSpanFull(),
 
                         Select::make('design')
