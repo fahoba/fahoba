@@ -1,7 +1,8 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { devices, expect, test } from '@playwright/test'
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 import { adminSession, createAccount, login, openSignIn, pair, tinker } from '../tests/helpers'
 import { borrowLocation, menu, morning, returnLocation, settle, theme } from './shots'
 
@@ -57,6 +58,115 @@ async function hideNoticeBar(page: Page): Promise<void> {
 test.beforeAll(borrowLocation)
 test.afterAll(returnLocation)
 
+/** One of the three moods the website shows side by side. */
+type Mood = { suffix: '' | '-dark' | '-evening', look: 'glass' | 'evening', mode: 'Hell' | 'Dunkel' }
+const MOODS: Mood[] = [
+  { suffix: '', look: 'glass', mode: 'Hell' },
+  { suffix: '-dark', look: 'glass', mode: 'Dunkel' },
+  { suffix: '-evening', look: 'evening', mode: 'Dunkel' },
+]
+
+/** Opens one page of the device settings. */
+async function settings(page: Page, topic: string): Promise<Locator> {
+  await page.getByTestId('theme').click()
+  const sheet = page.getByTestId('settings-sheet')
+  await sheet.locator(`[data-testid="settings-page"][data-value="${topic}"]`).click()
+
+  return sheet
+}
+
+async function closeSettings(page: Page): Promise<void> {
+  while (await page.getByTestId('settings-sheet').count() > 0) {
+    await page.keyboard.press('Escape')
+  }
+}
+
+/** Picks a chip, or turns a switch on, only when it is not already so (no request otherwise). */
+async function choose(page: Page, sheet: Locator, cell: string, value?: string): Promise<void> {
+  const target = sheet.locator(`[data-testid="preference"][data-cell="${cell}"]${value ? `[data-value="${value}"]` : ''}`).first()
+  const state = await target.getAttribute(value ? 'aria-pressed' : 'aria-checked')
+
+  if (state !== 'true') {
+    await Promise.all([
+      page.waitForResponse(r => r.url().endsWith('/api/preferences') && r.request().method() === 'PUT'),
+      target.click(),
+    ])
+  }
+}
+
+/** Look, backdrop and light or dark, set the way a tap in the device settings sets them. */
+async function mood(page: Page, { look, mode }: Mood): Promise<void> {
+  const sheet = await settings(page, 'appearance')
+  await choose(page, sheet, 'look', look)
+  await choose(page, sheet, 'backdrop', 'dusk')
+  await choose(page, sheet, 'colored_icons')
+
+  const theme = mode === 'Hell' ? 'light' : 'dark'
+  if (await page.locator('html').getAttribute('data-theme') !== theme) {
+    await Promise.all([
+      page.waitForResponse(r => r.url().endsWith('/api/theme') && r.request().method() === 'PUT'),
+      page.getByRole('radio', { name: mode }).click(),
+    ])
+  }
+  await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+  await expect(page.locator('html')).toHaveAttribute('data-look', look)
+  await closeSettings(page)
+}
+
+/** The side menu for every mood, so the three pictures line up when the website splits them. */
+async function sideMenu(page: Page): Promise<void> {
+  const sheet = await settings(page, 'start')
+  await choose(page, sheet, 'wide_menu', 'side')
+  await closeSettings(page)
+}
+
+/*
+ * The demo timetable has no subject colours; the website shows one per
+ * subject. Only lessons without a colour get one, and lose it again after.
+ */
+const SUBJECTS: Record<string, string> = {
+  Mathematik: '#3b82f6', Deutsch: '#ef4444', Englisch: '#8b5cf6', Sachunterricht: '#22c55e',
+  Biologie: '#14b8a6', Geografie: '#a16207', Turnen: '#f97316', Musik: '#ec4899',
+  Chor: '#eab308', Werken: '#64748b', Werkstatt: '#64748b',
+}
+let colouredLessons = '[]'
+let borrowedMeals = '[]'
+
+/*
+ * The demo week's meals sit in the week the seeder ran. When this week has
+ * none, the demo household's first planned week is copied into it, and the
+ * copies are removed again after.
+ */
+test.beforeAll(() => {
+  borrowedMeals = tinker(
+    '$t = DB::table("meal_plan_entries"); $h = App\\Models\\Household::orderBy("id")->first()->id;'
+    + ' $week = now()->startOfWeek(); $ids = [];'
+    + ' if (! (clone $t)->where("household_id", $h)->whereBetween("planned_on", [$week->toDateString(), $week->copy()->addDays(6)->toDateString()])->exists()) {'
+    + '   $from = Carbon\\Carbon::parse((clone $t)->where("household_id", $h)->where("title", "Gemüselasagne")->min("planned_on"))->startOfWeek();'
+    + '   foreach ((clone $t)->where("household_id", $h)->whereBetween("planned_on", [$from->toDateString(), $from->copy()->addDays(6)->toDateString()])->get() as $row) {'
+    + '     $copy = (array) $row; unset($copy["id"]);'
+    + '     $copy["planned_on"] = $week->copy()->addDays((int) $from->diffInDays(Carbon\\Carbon::parse($row->planned_on)))->toDateString();'
+    + '     $ids[] = (clone $t)->insertGetId($copy);'
+    + '   }'
+    + ' }'
+    + ' echo json_encode($ids);',
+  ).trim().split('\n').pop() ?? '[]'
+})
+test.afterAll(() => {
+  tinker(`DB::table("meal_plan_entries")->whereIn("id", json_decode("${borrowedMeals.replaceAll('"', '\\"')}", true) ?: [])->delete();`)
+})
+
+test.beforeAll(() => {
+  colouredLessons = tinker('echo json_encode(DB::table("lessons")->whereNull("color")->pluck("id"));').trim().split('\n').pop() ?? '[]'
+  for (const [title, color] of Object.entries(SUBJECTS)) {
+    tinker(`DB::table("lessons")->whereNull("color")->where("title", "${title}")->update(["color" => "${color}"]);`)
+  }
+})
+test.afterAll(() => {
+  tinker(`DB::table("lessons")->whereIn("id", json_decode("${colouredLessons.replaceAll('"', '\\"')}", true) ?: [])->update(["color" => null]);`)
+})
+
+
 /*
  * The phone upload answers 500 for these full-size pictures in DDEV (php-fpm
  * dies without a log line), so the rows are made the way wall.spec.ts makes
@@ -91,67 +201,56 @@ test.afterAll(removePhotos)
 test.describe('wall', () => {
   test.use(WALL)
 
-  for (const mode of ['Hell', 'Dunkel'] as const) {
-    const suffix = mode === 'Hell' ? '' : '-dark'
+  test('wall in three moods', async ({ page }) => {
+    test.setTimeout(300_000)
+    await morning(page)
+    await pair(page)
+    await sideMenu(page)
+    const area = (name: string) => page.getByRole('button', { name, exact: true }).click()
+    const shot = async (name: string): Promise<void> => {
+      await settle(page)
+      await hideExample(page)
+      await page.screenshot({ path: `${OUT}${name}.png` })
+    }
+    const views: Array<[string, string, () => Promise<void>]> = [
+      ['Start', 'wall-dashboard', () => expect(page.getByTestId('dashboard-grid')).toBeVisible()],
+      ['Kalender', 'wall-calendar-3day', () => expect(page.getByTestId('event').first()).toBeVisible()],
+      ['Aufgaben', 'wall-tasks', () => expect(page.getByTestId('column-open').first()).toBeVisible()],
+      ['Essen', 'wall-meals', () => expect(page.getByTestId('meal').first()).toBeVisible()],
+      ['Listen', 'wall-lists', async () => {}],
+      ['Schule', 'wall-timetable', async () => {}],
+      ['Sterne', 'wall-points', () => expect(page.getByTestId('reward').first()).toBeVisible()],
+    ]
 
-    test(`wall ${mode}`, async ({ page }) => {
-      test.setTimeout(120_000)
-      await morning(page)
-      await pair(page)
-      await theme(page, mode)
-      const shot = async (name: string): Promise<void> => {
-        await settle(page)
-        await hideExample(page)
-        await page.screenshot({ path: `${OUT}${name}${suffix}.png` })
+    for (const m of MOODS) {
+      await mood(page, m)
+      for (const [name, file, ready] of views) {
+        await area(name)
+        await ready()
+        await shot(`${file}${m.suffix}`)
       }
-      const area = (name: string) => page.getByRole('button', { name, exact: true }).click()
+    }
 
-      await area('Start')
-      await expect(page.getByTestId('dashboard-grid')).toBeVisible()
-      await shot('wall-dashboard')
+    // The frame turns to the next picture on its own, so its three moods are taken in a row.
+    await area('Fotos')
+    await expect(page.getByTestId('photo-frame')).toBeVisible()
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="photo-frame"] img')].some(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0), undefined, { polling: 500 })
+    await page.waitForTimeout(1500)
+    for (const m of MOODS) {
+      await mood(page, m)
+      await page.waitForTimeout(900)
+      await page.screenshot({ path: `${OUT}wall-photos${m.suffix}.png` })
+    }
 
-      await area('Kalender')
-      await expect(page.getByTestId('event').first()).toBeVisible()
-      await shot('wall-calendar-3day')
-
-      await area('Aufgaben')
-      await expect(page.getByTestId('day-column').first()).toBeVisible()
-      await expect(page.getByTestId('column-open').first()).toBeVisible()
-      await shot('wall-tasks')
-
-      await area('Essen')
-      await expect(page.getByTestId('meal').first()).toBeVisible()
-      await shot('wall-meals')
-
-      await area('Listen')
-      await shot('wall-lists')
-
-      await area('Schule')
-      await shot('wall-timetable')
-
-      await area('Fotos')
-      await expect(page.getByTestId('photo-frame')).toBeVisible()
-      await page.waitForFunction(() => [...document.querySelectorAll('[data-testid="photo-frame"] img')].some(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalWidth > 0), undefined, { polling: 500 })
-      await page.waitForTimeout(2500)
-      await shot('wall-photos')
-
-      await area('Sterne')
-      await expect(page.getByTestId('reward').first()).toBeVisible()
-      await shot('wall-points')
-
-      if (mode === 'Hell') {
-        // The shared task, asked who did it. Nothing is saved: the dialog is cancelled.
-        await area('Aufgaben')
-        await page.getByTestId('day-column').last().getByRole('button', { name: /Geschirrspüler ausräumen/ }).click()
-        await page.getByTestId('task-details-complete').click()
-        await expect(page.getByTestId('completed-person').first()).toBeVisible()
-        await settle(page)
-        await hideExample(page)
-        await page.screenshot({ path: `${OUT}wall-task-who-picker.png` })
-        await page.getByRole('button', { name: 'Abbrechen' }).click()
-      }
-    })
-  }
+    // The shared task, asked who did it. Nothing is saved: the dialog is cancelled.
+    await mood(page, MOODS[0])
+    await area('Aufgaben')
+    await page.getByTestId('day-column').last().getByRole('button', { name: /Geschirrspüler ausräumen/ }).click()
+    await page.getByTestId('task-details-complete').click()
+    await expect(page.getByTestId('completed-person').first()).toBeVisible()
+    await shot('wall-task-who-picker')
+    await page.getByRole('button', { name: 'Abbrechen' }).click()
+  })
 
   test('wall screensaver', async ({ page }) => {
     test.setTimeout(120_000)
@@ -160,6 +259,7 @@ test.describe('wall', () => {
       .formatToParts(new Date()).find(part => part.type === 'timeZoneName')?.value.replace('GMT', '') ?? '+00:00'
     await page.clock.install({ time: new Date(`${day}T09:30:00${offset}`) })
     await pair(page)
+    await mood(page, MOODS[0])
     await page.getByTestId('theme').click()
     const dialog = page.getByTestId('settings-sheet')
     await dialog.locator('[data-testid="settings-page"][data-value="rest"]').click()
@@ -199,6 +299,7 @@ test.describe('wall portrait', () => {
   test('portrait dashboard', async ({ page }) => {
     await morning(page)
     await pair(page)
+    await mood(page, MOODS[0])
     await page.getByRole('button', { name: 'Start', exact: true }).click()
     await expect(page.getByTestId('dashboard-grid')).toBeVisible()
     await settle(page)
@@ -286,22 +387,29 @@ test.describe('admin', () => {
 })
 
 /*
- * The tour video: a paired wall, recorded at 1280x800. What it ticks off is
- * taken out of the demo household again afterwards.
+ * The tour video: a paired wall, recorded at 1280x800 into TOUR_DIR (the
+ * website encodes it). Weather, a child's whole column ticked off with stars
+ * and the day bonus, coloured icons, the weather in the menu, dark, and the
+ * evening look last. What it ticks off is taken out of the demo household
+ * again afterwards.
  */
 test.describe('tour video', () => {
   test.use({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 })
 
   test('tour video', async ({ browser }) => {
-    test.setTimeout(180_000)
-    const target = process.env.TOUR_WEBM ?? '/home/apo/.claude/jobs/b3b442a9/tmp/tour.webm'
+    test.setTimeout(240_000)
+    const dir = process.env.TOUR_DIR ?? `${tmpdir()}/fahoba-tour`
     const options = { baseURL: 'https://fahoba.test', ignoreHTTPSErrors: true, timezoneId: 'Europe/Vienna', locale: 'de-AT', viewport: { width: 1280, height: 800 } }
 
-    // Pair off camera, then record with the device's cookie.
+    // Pair and set the starting look off camera, then record with the device's cookie.
     const setup = await browser.newContext(options)
     const first = await setup.newPage()
     await morning(first)
     await pair(first)
+    const sheet = await settings(first, 'appearance')
+    await choose(first, sheet, 'look', 'glass')
+    await choose(first, sheet, 'backdrop', 'dusk')
+    await closeSettings(first)
     const state = await setup.storageState()
     await setup.close()
 
@@ -311,68 +419,78 @@ test.describe('tour video', () => {
     const completionFloor = Number(before.match(/c=(\d*)/)?.[1] || 0)
     const pointFloor = Number(before.match(/p=(\d*)/)?.[1] || 0)
 
-    const context = await browser.newContext({ ...options, storageState: state, recordVideo: { dir: '/home/apo/.claude/jobs/b3b442a9/tmp/rec', size: { width: 1280, height: 800 } } })
+    const context = await browser.newContext({ ...options, storageState: state, recordVideo: { dir, size: { width: 1280, height: 800 } } })
     const page = await context.newPage()
+    const pause = (ms: number) => page.waitForTimeout(ms)
+    const area = (name: string) => page.getByRole('button', { name, exact: true }).click()
 
     try {
       await morning(page)
       await page.goto('/')
       await expect(page.getByTestId('dashboard-grid')).toBeVisible()
       await settle(page)
-      await page.waitForTimeout(3500)
+      await pause(1200)
 
-      await page.getByRole('button', { name: 'Aufgaben', exact: true }).click()
+      await page.getByTestId('weather-open').click()
+      await pause(3000)
+      await page.keyboard.press('Escape')
+      await pause(1000)
+
+      await area('Aufgaben')
       await expect(page.getByTestId('day-column').first()).toBeVisible()
-      await page.waitForTimeout(2000)
+      await pause(1500)
 
       const max = page.getByTestId('day-column').filter({ hasText: 'Max' }).first()
-
-      for (const title of [/Tisch abräumen/, /Katze füttern/]) {
-        await max.getByRole('button', { name: title }).click()
-        await page.waitForTimeout(900)
+      for (let i = 0; i < 8 && await max.getByTestId('column-open-task').count() > 0; i++) {
+        await max.getByTestId('column-open-task').first().click()
+        await pause(900)
         await page.getByTestId('task-details-complete').click()
-        await page.waitForTimeout(2800)
+        const who = page.getByTestId('completed-person').filter({ hasText: 'Max' })
+        if (await who.first().isVisible({ timeout: 800 }).catch(() => false)) {
+          await who.first().click()
+        }
+        await pause(2600)
       }
+      await pause(2500)
 
-      const toggle = async (topic: string): Promise<ReturnType<Page['getByTestId']>> => {
-        await page.getByTestId('theme').click()
-        const sheet = page.getByTestId('settings-sheet')
-        await sheet.locator(`[data-testid="settings-page"][data-value="${topic}"]`).click()
-        await page.waitForTimeout(700)
+      let sheet = await settings(page, 'appearance')
+      await pause(600)
+      await choose(page, sheet, 'colored_icons')
+      await pause(1600)
+      await closeSettings(page)
+      await pause(1500)
 
-        return sheet
-      }
+      sheet = await settings(page, 'start')
+      await pause(600)
+      await choose(page, sheet, 'menu_top', 'weather')
+      await pause(1600)
+      await closeSettings(page)
+      await pause(1800)
 
-      let sheet = await toggle('appearance')
-      await sheet.locator('[data-testid="preference"][data-cell="colored_icons"]').click()
-      await page.waitForTimeout(1800)
-      await page.keyboard.press('Escape')
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(1500)
-
-      sheet = await toggle('start')
-      await sheet.locator('[data-testid="preference"][data-cell="menu_top"][data-value="weather"]').click()
-      await page.waitForTimeout(1800)
-      await page.keyboard.press('Escape')
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(1800)
-
-      sheet = await toggle('appearance')
+      sheet = await settings(page, 'appearance')
+      await pause(600)
       await page.getByRole('radio', { name: 'Dunkel' }).click()
       await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-      await page.waitForTimeout(1500)
-      await page.keyboard.press('Escape')
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(1200)
+      await pause(1600)
+      await closeSettings(page)
+      await pause(1200)
+      await area('Sterne')
+      await pause(2500)
 
-      await page.getByRole('button', { name: 'Start', exact: true }).click()
+      sheet = await settings(page, 'appearance')
+      await pause(600)
+      await choose(page, sheet, 'look', 'evening')
+      await pause(1600)
+      await closeSettings(page)
+      await pause(1000)
+      await area('Start')
       await expect(page.getByTestId('dashboard-grid')).toBeVisible()
-      await page.waitForTimeout(3500)
+      await pause(3000)
+      await area('Aufgaben')
+      await pause(3000)
     }
     finally {
-      const video = page.video()
       await context.close()
-      await video?.saveAs(target)
       tinker(
         `App\\Models\\PointEntry::withoutGlobalScope("household")->where("id", ">", ${pointFloor})->delete();`
         + ` App\\Models\\TaskCompletion::withoutGlobalScope("household")->where("id", ">", ${completionFloor})->delete();`,
