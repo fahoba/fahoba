@@ -13,12 +13,38 @@ Google Calendar remains the leading source: what is entered there appears on
 the wall, and what is created on the wall ends up there. Children have no
 Google accounts and do not need any.
 
-| On the wall | On the phone |
-|---|---|
-| ![The wall's start page: events, weather, clock, tasks and stars](docs/screenshots/wall-dashboard-light.png) | ![Tasks on the phone, one column per person](docs/screenshots/phone-tasks-light.png) |
-| ![Three days in the calendar, one colour per person](docs/screenshots/wall-calendar-light.png) | ![The calendar on the phone in the dark theme](docs/screenshots/phone-calendar-dark.png) |
+![The wall's start page: today's events, weather, clock, open tasks and stars](docs/screenshots/wall-dashboard.webp)
 
-More in [`docs/screenshots/`](docs/screenshots/), light and dark.
+## A look around
+
+**Light and dark by the clock or the sun, in three looks:** classic, glass
+and the warm evening look. Each tablet and each account picks its own.
+
+| Glass, light | Glass, dark | Evening |
+|---|---|---|
+| ![The start page in the light glass look](docs/screenshots/wall-dashboard.webp) | ![The same start page in the dark glass look](docs/screenshots/wall-dashboard-dark.webp) | ![The same start page in the evening look](docs/screenshots/wall-dashboard-evening.webp) |
+
+| | |
+|---|---|
+| **Tasks and routines.** One column per person, stars per task, taking turns and times of day. A finished column praises instead of nagging.<br>![The day's tasks, one column per person, in the evening look](docs/screenshots/wall-tasks-evening.webp) | **Tap, confirm, then “who was that?”** Whoever did it gets the stars; a responsible person is one tap.<br>![The question “who did that?” after ticking off a task](docs/screenshots/wall-task-who-picker.webp) |
+| **Calendar.** Built in, or Google, CalDAV and iCal; day, three days, week, month and list, one colour per person.<br>![Three days in the calendar, one colour per person](docs/screenshots/wall-calendar-3day.webp) | **Stars and rewards.** Balances, badges, rewards to redeem and a ranking; the parent PIN guards the wall.<br>![Star balances, rewards and the ranking](docs/screenshots/wall-points.webp) |
+| **Lists.** Shopping and packing lists, mirrored to Bring or pushed to Google Tasks.<br>![Three lists side by side: shopping, swimming pool, school things](docs/screenshots/wall-lists.webp) | **Meals and recipes.** A week plan with portions by who eats, recipes one tap away, ingredients onto the list.<br>![The week's meal plan in the evening look](docs/screenshots/wall-meals-evening.webp) |
+| **Timetable** per child, with bell schedule, holidays and cancellations.<br>![A child's school week with one colour per subject](docs/screenshots/wall-timetable.webp) | **Photo frame** from uploads, folders, Immich, Nextcloud, OneDrive, Dropbox and shared albums.<br>![The photo frame showing a mountain lake](docs/screenshots/wall-photos.webp) |
+| **Resting mode.** After a while without a touch the wall dims and shows photos with the clock, or rotates through chosen areas.<br>![The resting wall: a dimmed photo with the clock](docs/screenshots/wall-screensaver.webp) | **Administration** for parents, in the browser: people, accounts, tasks, rewards, calendars, statistics.<br>![The admin's dashboard for a household](docs/screenshots/admin-overview.webp) |
+
+**On the phone** it is the same app: each account signs in with its own
+rights and arranges its own start page.
+
+| Start | Calendar | Lists | Meals |
+|---|---|---|---|
+| <img src="docs/screenshots/phone-dashboard.webp" width="200" alt="The start page on the phone, tiles stacked"> | <img src="docs/screenshots/phone-calendar-dark.webp" width="200" alt="The calendar on the phone in the dark theme"> | <img src="docs/screenshots/phone-lists.webp" width="200" alt="The shopping list on the phone"> | <img src="docs/screenshots/phone-meals.webp" width="200" alt="The meal plan on the phone"> |
+
+All pictures show the demo household from the seeder. Photos in the
+photo-frame pictures: “Lake Kinney mit Mount Whitehorn” by Florian Fuchs
+([CC BY 3.0](https://commons.wikimedia.org/wiki/File:Lake_Kinney_mit_Mount_Whitehorn.jpg)),
+“Olkhon Island, Capes, cliffs at sunset” by Vyacheslav Argenberg
+([CC BY 4.0](https://commons.wikimedia.org/wiki/File:Olkhon_Island,_Capes,_cliffs_at_sunset,_Lake_Baikal,_Russia.jpg)),
+both from Wikimedia Commons.
 
 ## Install on a server
 
@@ -356,7 +382,7 @@ in place, on the wall as on the phone:
   pictures shared from any app on Android, and Immich, Nextcloud, OneDrive,
   Dropbox, iCloud shared albums and Synology as plugins.
 - **One app** for wall and phone, with push, realtime, German and English,
-  light and dark.
+  light and dark in three looks (classic, glass, evening).
 - **Operation** — several households on one server, operator with support
   access, permissions per person, two-factor and social sign-in as
   extensions, running without mail, content security policy, backup and

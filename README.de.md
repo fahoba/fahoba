@@ -13,12 +13,39 @@ Google-Kalender bleibt die führende Quelle: Was dort steht, steht an der Wand,
 und was an der Wand entsteht, landet dort. Kinder haben keine Google-Konten und
 brauchen keine.
 
-| An der Wand | Am Handy |
-|---|---|
-| ![Die Startseite der Wand: Termine, Wetter, Uhr, Aufgaben und Sterne](docs/screenshots/wall-dashboard-light.png) | ![Aufgaben am Handy, eine Spalte je Person](docs/screenshots/phone-tasks-light.png) |
-| ![Drei Tage im Kalender, eine Farbe je Person](docs/screenshots/wall-calendar-light.png) | ![Der Kalender am Handy im dunklen Thema](docs/screenshots/phone-calendar-dark.png) |
+![Die Startseite der Wand: heutige Termine, Wetter, Uhr, offene Aufgaben und Sterne](docs/screenshots/wall-dashboard.webp)
 
-Mehr in [`docs/screenshots/`](docs/screenshots/), hell und dunkel.
+## Ein Rundgang
+
+**Hell und dunkel nach Uhrzeit oder Sonnenstand, in drei Looks:**
+klassisch, Glas und der warme Abend-Look. Jedes Tablet und jedes Konto
+wählt selbst.
+
+| Glas, hell | Glas, dunkel | Abend |
+|---|---|---|
+| ![Die Startseite im hellen Glas-Look](docs/screenshots/wall-dashboard.webp) | ![Dieselbe Startseite im dunklen Glas-Look](docs/screenshots/wall-dashboard-dark.webp) | ![Dieselbe Startseite im Abend-Look](docs/screenshots/wall-dashboard-evening.webp) |
+
+| | |
+|---|---|
+| **Aufgaben und Routinen.** Eine Spalte je Person, Sterne je Aufgabe, abwechselnd und nach Tageszeit. Eine fertige Spalte lobt, statt zu mahnen.<br>![Die Aufgaben des Tages, eine Spalte je Person, im Abend-Look](docs/screenshots/wall-tasks-evening.webp) | **Antippen, bestätigen, dann „wer war das?“** Wer es gemacht hat, bekommt die Sterne; ist jemand zuständig, reicht ein Tipp.<br>![Die Frage „Wer hat das gemacht?“ nach dem Abhaken](docs/screenshots/wall-task-who-picker.webp) |
+| **Kalender.** Eingebaut oder Google, CalDAV und iCal; Tag, drei Tage, Woche, Monat und Liste, eine Farbe je Person.<br>![Drei Tage im Kalender, eine Farbe je Person](docs/screenshots/wall-calendar-3day.webp) | **Sterne und Belohnungen.** Kontostand, Abzeichen, Belohnungen zum Einlösen und eine Rangliste; die Eltern-PIN schützt die Wand.<br>![Sternenstand, Belohnungen und Rangliste](docs/screenshots/wall-points.webp) |
+| **Listen.** Einkaufs- und Packlisten, mit Bring abgeglichen oder zu Google Tasks geschickt.<br>![Drei Listen nebeneinander: Einkauf, Schwimmbad, Schulsachen](docs/screenshots/wall-lists.webp) | **Essen und Rezepte.** Ein Wochenplan mit Portionen nach den Essern, das Rezept einen Tipp entfernt, Zutaten auf die Liste.<br>![Der Essensplan der Woche im Abend-Look](docs/screenshots/wall-meals-evening.webp) |
+| **Stundenplan** je Kind, mit Klingelzeiten, Ferien und Entfall.<br>![Die Schulwoche eines Kindes, eine Farbe je Fach](docs/screenshots/wall-timetable.webp) | **Bilderrahmen** aus Uploads, Ordnern, Immich, Nextcloud, OneDrive, Dropbox und geteilten Alben.<br>![Der Bilderrahmen mit einem Bergsee](docs/screenshots/wall-photos.webp) |
+| **Ruhemodus.** Nach einer Weile ohne Berührung dunkelt die Wand ab und zeigt Fotos mit Uhr oder wechselt durch gewählte Bereiche.<br>![Die ruhende Wand: ein abgedunkeltes Foto mit Uhr](docs/screenshots/wall-screensaver.webp) | **Verwaltung** für Eltern im Browser: Personen, Konten, Aufgaben, Belohnungen, Kalender, Statistik.<br>![Das Dashboard der Verwaltung eines Haushalts](docs/screenshots/admin-overview.webp) |
+
+**Am Handy** ist es dieselbe App: Jedes Konto meldet sich mit seinen eigenen
+Rechten an und richtet seine eigene Startseite ein.
+
+| Start | Kalender | Listen | Essen |
+|---|---|---|---|
+| <img src="docs/screenshots/phone-dashboard.webp" width="200" alt="Die Startseite am Handy, Kacheln untereinander"> | <img src="docs/screenshots/phone-calendar-dark.webp" width="200" alt="Der Kalender am Handy im dunklen Thema"> | <img src="docs/screenshots/phone-lists.webp" width="200" alt="Die Einkaufsliste am Handy"> | <img src="docs/screenshots/phone-meals.webp" width="200" alt="Der Essensplan am Handy"> |
+
+Alle Bilder zeigen den Demo-Haushalt aus dem Seeder. Fotos in den
+Bilderrahmen-Bildern: „Lake Kinney mit Mount Whitehorn“ von Florian Fuchs
+([CC BY 3.0](https://commons.wikimedia.org/wiki/File:Lake_Kinney_mit_Mount_Whitehorn.jpg)),
+„Olkhon Island, Capes, cliffs at sunset“ von Vyacheslav Argenberg
+([CC BY 4.0](https://commons.wikimedia.org/wiki/File:Olkhon_Island,_Capes,_cliffs_at_sunset,_Lake_Baikal,_Russia.jpg)),
+beide von Wikimedia Commons.
 
 ## Auf einem Server installieren
 
@@ -359,7 +386,7 @@ ist da, an der Wand wie am Handy:
   Wand; unter Android aus jeder App teilen, dazu Immich, Nextcloud,
   OneDrive, Dropbox, geteilte iCloud-Alben und Synology als Plugins.
 - **Eine App** für Wand und Handy, mit Push, Echtzeit, Deutsch und Englisch,
-  hell und dunkel.
+  hell und dunkel in drei Looks (klassisch, Glas, Abend).
 - **Betrieb** — mehrere Haushalte auf einem Server, Betreiber mit
   Support-Zugang, Rechte je Person, zweiter Faktor und Anmeldung über
   Google & Co. als Erweiterungen, Betrieb ohne Mail, Content Security Policy, Sicherung

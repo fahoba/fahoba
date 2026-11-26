@@ -2653,7 +2653,7 @@ Five files, five audiences. Whoever completes a release checks all of them:
 | `docs/installation.md` + `docs/installation.de.md` | Operators | When `deploy/`, `.env.example` or an update step changes |
 | `docs/kiosk.md` + `docs/kiosk.de.md` | Operation at the wall | When pairing or kiosk behaviour changes |
 | `AGENTS.md` | Agents and developers | On new pitfalls or conventions |
-| `docs/screenshots/` | README readers | After a visible change: `pnpm run screenshots` in `packages/e2e` (after `pnpm build`; borrows a location for the demo household and gives it back) |
+| `docs/screenshots/` | README readers | After a visible change: `pnpm run screenshots:website` in `packages/e2e` (after `pnpm build`; borrows a location for the demo household and gives it back), then the pictures the READMEs name as WebP: `cwebp -q 82 -resize 1280 0` (phones `540`). Only photo-frame pictures whose photo is CC BY or freer, credited below the tour |
 
 **README, installation guide and kiosk guide exist in English and German.** Whoever
 changes one changes the other in the same commit — families setting up a

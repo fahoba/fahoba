@@ -7,6 +7,14 @@ tokens; such a change is named here.
 
 ## [Unreleased]
 
+### Changed
+
+- The READMEs show a tour of every area (wall in three looks, phone,
+  admin) instead of four pictures from before 0.4.0. The pictures are the
+  website's (`screenshots:website`), scaled to 1280 px as WebP: the
+  2560 px PNGs weigh 1.3 MB each and would grow the repository with every
+  new set.
+
 ## [0.5.0] — 2026-11-17
 
 ### Fixed
